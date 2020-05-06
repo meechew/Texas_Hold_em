@@ -38,15 +38,18 @@ char *Face[] = {
 struct card {
   int rank;
   int face;
+  inline card(int r, int f); rank(r), face(f){}
 };
 
 class Deck {
-  card cards[52];
+  list<card> cards;
+  //array<card, 52> cards;
+    //  card cards[52];
 public:
   Deck();
   ~Deck();
   void Shuffle();
-
+  *card Deal(int quant);
 };
 
 #endif //TEXAS_HOLD_EM_DECK_H
