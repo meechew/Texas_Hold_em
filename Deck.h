@@ -61,13 +61,14 @@ class Deck {
   cards Cards;
   RandomEngine<int> rng;
   void Build();
+  list<card> cards;
+  //array<card, 52> cards;
+    //  card cards[52];
 public:
   Deck();
   ~Deck();
   void Shuffle();
 
 };
-
-
 
 #endif //TEXAS_HOLD_EM_DECK_H
