@@ -6,8 +6,10 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <vector>
 #include <random>
 #include <chrono>
+#include "RandomEngine.h"
 #define CLUB  9827
 #define DIAM  9830
 #define HEART 9829
@@ -29,24 +31,43 @@ char *Rank[] = {
     [13] "K"
 };
 
-char *Face[] = {
-    [1] "\u9827",
-    [2] "\u9830",
-    [3] "\u9829",
-    [4] "\u9824"
-};
-struct card {
-  int rank;
-  int face;
+char *SuitSym[] = {
+    [1] = "\u2660",
+    [2] = "\u2665",
+    [3] = "\u2663",
+    [4] = "\u2666"
 };
 
+char *SuitChar[] = {
+    [1] = "S",
+    [2] = "H",
+    [3] = "C",
+    [4] = "D"
+};
+
+struct card {
+  int rank;
+  int suit;
+  card(int r,int s): rank(r), suit(s) {}
+};
+
+class Rand {
+
+};
+
+typedef std::vector<card> cards;
+
 class Deck {
-  card cards[52];
+  cards Cards;
+  RandomEngine<int> rng;
+  void Build();
 public:
   Deck();
   ~Deck();
   void Shuffle();
 
 };
+
+
 
 #endif //TEXAS_HOLD_EM_DECK_H
