@@ -16,7 +16,7 @@ public:
   typedef T                               value_type;
   typedef T*                              pointer;
   typedef T&                              reference;
-  RandomEngine() = delete;
+  RandomEngine() = default;
   RandomEngine<T>(int x, int y);
   T operator()();
 };
