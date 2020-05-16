@@ -2,6 +2,7 @@
 //
 
 #include "Deck.h"
+#include "FaceValues.h"
 
 int main() {
   Deck T_Deck;

@@ -15,43 +15,12 @@
 #define HEART 9829
 #define SPADE 9824
 
-typedef std::map<int,char> CardFace;
-CardFace Rank = {
-    {1, 'A'},
-    {2, '2'},
-    {3, '3'},
-    {4, '4'},
-    {5, '5'},
-    {6, '6'},
-    {7, '7'},
-    {8, '8'},
-    {9, '9'},
-    {10, 'T'},
-    {11, 'J'},
-    {12, 'Q'},
-    {13, 'K'}
-};
-
-/*CardFace SuitSym= {
-    {1, '\u2660'},
-    {2, '\u2665'},
-    {3, '\u2663'},
-    {4, '\u2666'}
-};*/
-
-CardFace SuitChar = {
-    {1, 'S'},
-    {2, 'H'},
-    {3, 'C'},
-    {4, 'D'}
-};
 
 struct card {
   int rank;
   int suit;
   card(int r,int s): rank(r), suit(s) {}
 };
-
 
 typedef std::vector<card> cards;
 
