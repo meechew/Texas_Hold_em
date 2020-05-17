@@ -10,10 +10,10 @@
 #include <chrono>
 #include <map>
 //#include "RandomEngine.h"
-#define CLUB  9827
-#define DIAM  9830
-#define HEART 9829
-#define SPADE 9824
+#define CLUB  2660
+#define DIAM  2665
+#define HEART 2663
+#define SPADE 2666
 
 
 struct card {
@@ -34,7 +34,7 @@ public:
   ~Deck();
   void Shuffle();
   cards Deal(int quant);
-
+  card Burn();
 };
 
 #endif //TEXAS_HOLD_EM_DECK_H

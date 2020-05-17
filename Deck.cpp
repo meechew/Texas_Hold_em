@@ -11,15 +11,6 @@ Deck::Deck() {
   Shuffle();
 }
 
-cards Deck::Deal(int quant) {
-  cards ret;
-  for(int k = 0; k < quant; ++k) {
-    ret.push_back(Cards.back());
-    Cards.pop_back();
-  }
-  return ret;
-}
-
 void Deck::Build() {
   for(int s = 1; s < 5; ++s)
     for(int r = 1; r < 14; ++r)
@@ -30,4 +21,19 @@ void Deck::Shuffle() {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::shuffle(Cards.begin(), Cards.end(),
                std::default_random_engine(seed));
+}
+
+cards Deck::Deal(int quant) {
+  cards ret;
+  for(int k = 0; k < quant; ++k) {
+    ret.push_back(Cards.back());
+    Cards.pop_back();
+  }
+  return ret;
+}
+
+card Deck::Burn() {
+  card ret = Cards.back();
+  Cards.pop_back();
+  return ret;
 }
