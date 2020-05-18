@@ -18,4 +18,18 @@ void Player::Draw(cards Dealt, bool First, bool Second) {
     hand.second = Dealt.back();
 }
 
+void Player::AddPlayer(std::string n) {
+  Name = std::move(n);
+}
+
+cards Player::Call() {
+  cards ret;
+  ret.emplace_back(hand.first);
+  ret.emplace_back(hand.second);
+  return ret;
+}
+
+void Player::Fold() {
+  hand = std::make_pair<card,card>(card(0,0),card(0,0));
+}
 

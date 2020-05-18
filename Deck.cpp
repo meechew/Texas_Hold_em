@@ -13,7 +13,7 @@ Deck::Deck() {
 
 void Deck::Build() {
   for(int s = 1; s < 5; ++s)
-    for(int r = 1; r < 14; ++r)
+    for(int r = 2; r < 15; ++r)
       Cards.emplace_back(r,s);
 }
 
@@ -36,4 +36,12 @@ card Deck::Burn() {
   card ret = Cards.back();
   Cards.pop_back();
   return ret;
+}
+
+
+cards operator+(const cards lhs, const cards rhs) {
+  cards ret = lhs;
+  for(auto k : rhs)
+    ret.emplace_back(k);
+  return cards();
 }

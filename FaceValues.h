@@ -8,7 +8,6 @@
 typedef std::map<int,char> CardFace;
 
 CardFace Rank = {
-    {1, 'A'},
     {2, '2'},
     {3, '3'},
     {4, '4'},
@@ -20,7 +19,8 @@ CardFace Rank = {
     {10, 'T'},
     {11, 'J'},
     {12, 'Q'},
-    {13, 'K'}
+    {13, 'K'},
+    {14, 'A'}
 };
 
 /*CardFace SuitSym= {

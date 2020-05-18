@@ -23,6 +23,7 @@ struct card {
 };
 
 typedef std::vector<card> cards;
+cards operator+(const cards lhs, const cards rhs);
 
 class Deck {
 private:
