@@ -24,6 +24,9 @@ struct card {
   inline bool operator==(const card &test) const {
     return test.rank == rank and test.suit == suit;
   }
+  inline bool operator<(card & c) const {
+    return rank < c.rank;
+  }
 };
 
 typedef std::vector<card> cards;

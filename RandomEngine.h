@@ -3,14 +3,15 @@
 
 #ifndef TEXAS_HOLD_EM_RANDOMENGINE_H
 #define TEXAS_HOLD_EM_RANDOMENGINE_H
-#include <random>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <ctime>
 
 template<typename T>
 class RandomEngine {
 private:
-  std::random_device Device;
-  std::mt19937  rng;
-  std::uniform_int_distribution<T> RangeDef;
+  boost::mt19937 rng;
+  boost::random::uniform_int_distribution<T> RangeDef;
 
 public:
   typedef T                               value_type;
