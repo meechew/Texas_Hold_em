@@ -19,11 +19,16 @@
 struct card {
   int rank;
   int suit;
+  card(): rank(0), suit(0) {}
   card(int r,int s): rank(r), suit(s) {}
+  inline bool operator==(const card &test) const {
+    return test.rank == rank and test.suit == suit;
+  }
 };
 
 typedef std::vector<card> cards;
-cards operator+(const cards lhs, const cards rhs);
+typedef std::pair<card,card> pair;
+cards operator+(cards lhs, cards rhs);
 
 class Deck {
 private:
