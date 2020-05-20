@@ -8,23 +8,17 @@
 #include <boost/random/variate_generator.hpp>
 #include <ctime>
 
-template<typename T>
 class RandomEngine {
 private:
-  boost::mt19937 rng;
-  boost::random::uniform_int_distribution<T> RangeDef;
+  boost::mt19937 gen;
+  boost::uniform_int<int> RangeDef;
   boost::random::variate_generator<boost::mt19937,
-    boost::random::uniform_int_distribution<T>> gen;
+				   boost::uniform_int<int>> rng;
 
 public:
-  typedef T                               value_type;
-  typedef T*                              pointer;
-  typedef T&                              reference;
-  typedef size_t                          size_type;
-  typedef ptrdiff_t                       difference_type;
   //RandomEngine() = default;
-  RandomEngine<T>(int x, int y);
-  T operator()(int);
+  RandomEngine(int x, int y);
+  int operator()(int);
 };
 
 

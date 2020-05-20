@@ -3,15 +3,13 @@
 
 #include "RandomEngine.h"
 
-template<typename T>
-RandomEngine<T>::RandomEngine(int x, int y) {
+RandomEngine::RandomEngine(int x, int y) {
   //initialize RNG with a random value
-  rng = boost::mt19937(* ctime(0));
-  RangeDef = boost::random::uniform_int_distribution<T>(x, y);
-  gen =   boost::random::variate_generator<boost::mt19937,  boost::random::uniform_int_distribution<T>> (rng, RangeDef);
+  gen = boost::mt19937(* ctime(0));
+  RangeDef = boost::uniform_int<int>(x, y);
+  rng = boost::random::variate_generator<boost::mt19937,  boost::uniform_int<int>>(gen, RangeDef);
 }
 
-template<typename T>
-T RandomEngine<T>::operator()(int it) {
-  return gen();
+int RandomEngine::operator()(int i) {
+  return gen()%i;
 }

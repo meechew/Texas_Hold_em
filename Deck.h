@@ -1,20 +1,25 @@
 // Created by CBunt on 05 May 2020.
 //
 
+// compile with -lstdc++
+
 #ifndef TEXAS_HOLD_EM_DECK_H
 #define TEXAS_HOLD_EM_DECK_H
 #include <iostream>
-#include <boost/algorithm/algorithm.hpp>
-#include <list>
-#include <boost/range/algorithm/random_shuffle.hpp>
 #include <chrono>
+#include <list>
 #include <map>
-//#include "RandomEngine.h"
+#include <boost/algorithm/algorithm.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/range/algorithm/random_shuffle.hpp>
+#include <boost/container/map.hpp>
+#include "RandomEngine.h"
 #define CLUB  2660
 #define DIAM  2665
 #define HEART 2663
 #define SPADE 2666
 
+using namespace boost::container;
 
 struct card {
   int rank;
@@ -29,14 +34,14 @@ struct card {
   }
 };
 
-typedef std::vector<card> cards;
+typedef vector<card> cards;
 typedef std::pair<card,card> pair;
 cards operator+(cards lhs, cards rhs);
 
 class Deck {
 private:
   cards Cards;
-//  RandomEngine<card> *rng;
+  RandomEngine *rng;
   void Build();
 public:
   Deck();

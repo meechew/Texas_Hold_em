@@ -4,8 +4,9 @@
 #ifndef TEXAS_HOLD_EM_FACEVALUES_H
 #define TEXAS_HOLD_EM_FACEVALUES_H
 #include "Deck.h"
+#include <boost/container/map.hpp>
 
-typedef std::map<int,char> CardFace;
+typedef map<int,char> CardFace;
 
 CardFace Rank = {
     {2, '2'},
