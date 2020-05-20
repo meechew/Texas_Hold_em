@@ -4,12 +4,12 @@
 #ifndef TEXAS_HOLD_EM_DECK_H
 #define TEXAS_HOLD_EM_DECK_H
 #include <iostream>
-#include <algorithm>
+#include <boost/algorithm/algorithm.hpp>
 #include <list>
-#include <random>
+#include <boost/range/algorithm/random_shuffle.hpp>
 #include <chrono>
 #include <map>
-//#include "RandomEngine.h"
+#include "RandomEngine.h"
 #define CLUB  2660
 #define DIAM  2665
 #define HEART 2663
@@ -36,7 +36,7 @@ cards operator+(cards lhs, cards rhs);
 class Deck {
 private:
   cards Cards;
-  //RandomEngine<int> *rng;
+  RandomEngine<int> *rng;
   void Build();
 public:
   Deck();

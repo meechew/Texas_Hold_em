@@ -6,7 +6,7 @@
 Deck::~Deck() = default;
 
 Deck::Deck() {
-  //rng = new RandomEngine<int>(0,51);
+  rng = new RandomEngine<int>(0,51);
   Build();
   Shuffle();
 }
@@ -18,9 +18,7 @@ void Deck::Build() {
 }
 
 void Deck::Shuffle() {
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  std::shuffle(Cards.begin(), Cards.end(),
-               std::default_random_engine(seed));
+  boost::range::random_shuffle(Cards,*rng);
 }
 
 cards Deck::Deal(int quant) {
