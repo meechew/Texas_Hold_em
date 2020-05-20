@@ -9,7 +9,7 @@
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <chrono>
 #include <map>
-#include "RandomEngine.h"
+//#include "RandomEngine.h"
 #define CLUB  2660
 #define DIAM  2665
 #define HEART 2663
@@ -36,7 +36,7 @@ cards operator+(cards lhs, cards rhs);
 class Deck {
 private:
   cards Cards;
-  RandomEngine<int> *rng;
+//  RandomEngine<card> *rng;
   void Build();
 public:
   Deck();

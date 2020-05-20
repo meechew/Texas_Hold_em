@@ -12,6 +12,6 @@ RandomEngine<T>::RandomEngine(int x, int y) {
 }
 
 template<typename T>
-T RandomEngine<T>::operator()() {
+T RandomEngine<T>::operator()(int it) {
   return gen();
 }

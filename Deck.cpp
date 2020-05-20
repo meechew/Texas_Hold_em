@@ -6,7 +6,7 @@
 Deck::~Deck() = default;
 
 Deck::Deck() {
-  rng = new RandomEngine<int>(0,51);
+  //rng = new RandomEngine<card>(0,51);
   Build();
   Shuffle();
 }
@@ -18,7 +18,8 @@ void Deck::Build() {
 }
 
 void Deck::Shuffle() {
-  boost::range::random_shuffle(Cards,*rng);
+  //  boost::range::random_shuffle(Cards,*rng);
+  boost::range::random_shuffle(Cards);
 }
 
 cards Deck::Deal(int quant) {
