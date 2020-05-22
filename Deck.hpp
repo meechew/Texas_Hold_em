@@ -3,17 +3,15 @@
 
 // compile with -lstdc++
 
-#ifndef TEXAS_HOLD_EM_DECK_H
-#define TEXAS_HOLD_EM_DECK_H
+#ifndef TEXAS_HOLD_EM_DECK_HPP
+#define TEXAS_HOLD_EM_DECK_HPP
 #include <iostream>
 #include <chrono>
-#include <list>
-#include <map>
-#include <boost/algorithm/algorithm.hpp>
+#include <boost/range/algorithm/sort.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <boost/container/map.hpp>
-#include "RandomEngine.h"
+#include "RandomEngine.hpp"
 #define CLUB  2660
 #define DIAM  2665
 #define HEART 2663
@@ -36,7 +34,7 @@ struct card {
 
 typedef vector<card> cards;
 typedef std::pair<card,card> pair;
-cards operator+(cards lhs, cards rhs);
+cards operator+(const cards& lhs, const cards& rhs);
 
 class Deck {
 private:
@@ -51,4 +49,4 @@ public:
   card Burn();
 };
 
-#endif //TEXAS_HOLD_EM_DECK_H
+#endif //TEXAS_HOLD_EM_DECK_HPP

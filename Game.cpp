@@ -1,7 +1,7 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#include "Game.h"
+#include "Game.hpp"
 
 
 cards Game::Flop() {

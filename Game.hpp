@@ -1,10 +1,10 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#ifndef TEXAS_HOLD_EM_GAME_H
-#define TEXAS_HOLD_EM_GAME_H
+#ifndef TEXAS_HOLD_EM_GAME_HPP
+#define TEXAS_HOLD_EM_GAME_HPP
 
-#include "Deck.h"
+#include "Deck.hpp"
 
 class Game {
 private:
@@ -16,4 +16,4 @@ public:
 };
 
 
-#endif //TEXAS_HOLD_EM_GAME_H
+#endif //TEXAS_HOLD_EM_GAME_HPP

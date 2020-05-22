@@ -1,9 +1,9 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#ifndef TEXAS_HOLD_EM_FACEVALUES_H
-#define TEXAS_HOLD_EM_FACEVALUES_H
-#include "Deck.h"
+#ifndef TEXAS_HOLD_EM_FACEVALUES_HPP
+#define TEXAS_HOLD_EM_FACEVALUES_HPP
+#include "Deck.hpp"
 #include <boost/container/map.hpp>
 
 typedef map<int,char> CardFace;
@@ -38,4 +38,4 @@ CardFace SuitChar = {
     {4, 'D'}
 };
 
-#endif //TEXAS_HOLD_EM_FACEVALUES_H
+#endif //TEXAS_HOLD_EM_FACEVALUES_HPP

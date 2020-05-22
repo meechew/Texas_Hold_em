@@ -1,7 +1,7 @@
 // Created by CBunt on 05 May 2020.
 //
 
-#include "Deck.h"
+#include "Deck.hpp"
 
 Deck::~Deck() = default;
 
@@ -19,7 +19,6 @@ void Deck::Build() {
 
 void Deck::Shuffle() {
   boost::range::random_shuffle(Cards,*rng);
-  //  boost::range::random_shuffle(Cards);
 }
 
 cards Deck::Deal(int quant) {
@@ -38,7 +37,7 @@ card Deck::Burn() {
 }
 
 
-cards operator+(const cards lhs, const cards rhs) {
+cards operator+(const cards& lhs, const cards& rhs) {
   cards ret = lhs;
   for(auto k : rhs)
     ret.emplace_back(k);

@@ -1,7 +1,7 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#include "Player.h"
+#include "Player.hpp"
 
 void Player::NewHand(cards Dealt) {
   hand.first = Dealt.front();
@@ -33,3 +33,6 @@ void Player::Fold() {
   hand = std::make_pair<card,card>(card(0,0),card(0,0));
 }
 
+std::string Player::Who() {
+  return Name;
+}
