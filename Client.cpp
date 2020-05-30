@@ -55,11 +55,11 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
-#include "Message.hpp"
+#include "Update.hpp"
 
 using boost::asio::ip::tcp;
 
-typedef std::deque<chat_message> chat_message_queue;
+typedef std::deque<Update> chat_message_queue;
 
 class chat_client
 {
@@ -72,7 +72,7 @@ public:
     do_connect(endpoints);
   }
 
-  void write(const chat_message& msg)
+  void write(const Update& msg)
   {
     boost::asio::post(io_context_,
                       [this, msg]()
@@ -107,7 +107,7 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                            boost::asio::buffer(read_msg_.data(), Update::header_length),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec && read_msg_.decode_header())
@@ -165,7 +165,7 @@ private:
 private:
   boost::asio::io_context& io_context_;
   tcp::socket socket_;
-  chat_message read_msg_;
+  Update read_msg_;
   chat_message_queue write_msgs_;
 };
 
@@ -187,10 +187,10 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    char line[chat_message::max_body_length + 1];
-    while (std::cin.getline(line, chat_message::max_body_length + 1))
+    char line[Update::max_body_length + 1];
+    while (std::cin.getline(line, Update::max_body_length + 1))
     {
-      chat_message msg;
+      Update msg;
       msg.body_length(std::strlen(line));
       std::memcpy(msg.body(), line, msg.body_length());
       msg.encode_header();

@@ -5,27 +5,85 @@
 
 #ifndef TEXAS_HOLD_EM_NETWORKCONTROLLER_HPP
 #define TEXAS_HOLD_EM_NETWORKCONTROLLER_HPP
+#include <cstdlib>
+#include <deque>
 #include <iostream>
+#include <list>
+#include <memory>
+#include <set>
+#include <utility>
 #include <boost/asio.hpp>
+#include "Player.hpp"
+#include "Update.hpp"
 
 using boost::asio::ip::tcp;
 
-class Session: public std::enable_shared_from_this<Session> {
+typedef std::deque<Update> UpdateQueue;
+
+class Seat {
 public:
-  Session(tcp::socket socket)
-      : socket_(std::move(socket)) {}
-  void start() {do_read();}
+  virtual ~Seat();
+  virtual void Signal(const Update& Upd);
+};
+
+typedef std::shared_ptr<Seat> SeatPtr;
+
+class TableServer {
+public:
+  void Join(SeatPtr SeatedPlayer) {}
+  void Leave(SeatPtr SeatedPlayer) {Seats.erase(SeatedPlayer);}
+  void Signal(const Update& Upd) {
+    RecentUpdates.push_back(Upd);
+    while (RecentUpdates.size() > MaxQueue)
+      RecentUpdates.pop_front();
+
+    for (auto seat : Seats)
+      seat->Signal(Upd);
+  }
+
 private:
-  tcp::socket socket_;
-  enum { max_length = 1024 };
+  std::set<SeatPtr> Seats;
+  enum {MaxQueue = 100};
+  UpdateQueue RecentUpdates;
+};
+
+class Session:
+    public Seat,
+    public std::enable_shared_from_this<Session> {
+public:
+  Session(tcp::socket Skt,TableServer& Tbl)
+      : Socket(std::move(Skt)), Tbl(Tbl) {}
+  void Start();
+  void Deliver (const Update& Upd);
+private:
+  tcp::socket Socket;
+  TableServer Tbl;
+  Update ReadUpdate;
+  UpdateQueue WriteUpdate;
+  enum {max_length = 1024};
   char data_[max_length];
 
-  void do_read();
-  void do_write(std::size_t length);
-
+  void DoRead();
+  void DoReadHeader();
+  void DoReadBody();
+  void DoWrite();
 };
 
 class NetworkController {
+public:
+  NetworkController(boost::asio::io_context& Context,
+      const tcp::endpoint& Endpoint):
+      Acceptor(Context, Endpoint) {
+    DoAccept();
+  }
+
+private:
+  void DoAccept();
+  tcp::acceptor Acceptor;
+  TableServer Tbl;
+};
+
+/*class NetworkController {
 public:
   NetworkController(boost::asio::io_context& io_context, short port)
       : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
@@ -34,6 +92,6 @@ public:
 private:
   void do_accept();
   tcp::acceptor acceptor_;
-};
+};*/
 
 #endif //TEXAS_HOLD_EM_NETWORKCONTROLLER_HPP

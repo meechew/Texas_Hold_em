@@ -54,13 +54,13 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include "Message.hpp"
+#include "Update.hpp"
 
 using boost::asio::ip::tcp;
 
 //----------------------------------------------------------------------
 
-typedef std::deque<chat_message> chat_message_queue;
+typedef std::deque<Update> chat_message_queue;
 
 //----------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ class chat_participant
 {
 public:
   virtual ~chat_participant() {}
-  virtual void deliver(const chat_message& msg) = 0;
+  virtual void deliver(const Update& msg) = 0;
 };
 
 typedef std::shared_ptr<chat_participant> chat_participant_ptr;
@@ -90,7 +90,7 @@ public:
     participants_.erase(participant);
   }
 
-  void deliver(const chat_message& msg)
+  void deliver(const Update& msg)
   {
     recent_msgs_.push_back(msg);
     while (recent_msgs_.size() > max_recent_msgs)
@@ -125,7 +125,7 @@ public:
     do_read_header();
   }
 
-  void deliver(const chat_message& msg)
+  void deliver(const Update& msg)
   {
     bool write_in_progress = !write_msgs_.empty();
     write_msgs_.push_back(msg);
@@ -140,7 +140,7 @@ private:
   {
     auto self(shared_from_this());
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+                            boost::asio::buffer(read_msg_.data(), Update::header_length),
                             [this, self](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec && read_msg_.decode_header())
@@ -177,28 +177,28 @@ private:
   {
     auto self(shared_from_this());
     boost::asio::async_write(socket_,
-                             boost::asio::buffer(write_msgs_.front().data(),
-                                                 write_msgs_.front().length()),
-                             [this, self](boost::system::error_code ec, std::size_t /*length*/)
-                             {
-                               if (!ec)
-                               {
-                                 write_msgs_.pop_front();
-                                 if (!write_msgs_.empty())
-                                 {
-                                   do_write();
-                                 }
-                               }
-                               else
-                               {
-                                 room_.leave(shared_from_this());
-                               }
-                             });
+     boost::asio::buffer(write_msgs_.front().data(),
+                         write_msgs_.front().length()),
+     [this, self](boost::system::error_code ec, std::size_t /*length*/)
+     {
+       if (!ec)
+       {
+         write_msgs_.pop_front();
+         if (!write_msgs_.empty())
+         {
+           do_write();
+         }
+       }
+       else
+       {
+         room_.leave(shared_from_this());
+       }
+     });
   }
 
   tcp::socket socket_;
   chat_room& room_;
-  chat_message read_msg_;
+  Update read_msg_;
   chat_message_queue write_msgs_;
 };
 

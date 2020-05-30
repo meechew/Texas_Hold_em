@@ -1,32 +1,26 @@
 // Created by CBunt on 28 May 2020.
 //
+// Documentation for this controller can be found at:
+// https://www.boost.org/doc/libs/1_73_0/doc/html/boost_asio.html
 
-#ifndef TEXAS_HOLD_EM_MESSAGE_HPP
-#define TEXAS_HOLD_EM_MESSAGE_HPP
-//
-// chat_message.hpp
-// ~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2020 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+#ifndef TEXAS_HOLD_EM_UPDATE_HPP
+#define TEXAS_HOLD_EM_UPDATE_HPP
 
-#ifndef CHAT_MESSAGE_HPP
-#define CHAT_MESSAGE_HPP
+
+#ifndef CHAT_UPDATE_HPP
+#define CHAT_UPDATE_HPP
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-class chat_message
+class Update
 {
 public:
-  enum { header_length = 4 };
-  enum { max_body_length = 512 };
+  enum {header_length = 4};
+  enum {max_body_length = 512};
 
-  chat_message()
+  Update()
       : body_length_(0)
   {
   }
@@ -94,4 +88,4 @@ private:
 };
 
 #endif // CHAT_MESSAGE_HPP
-#endif //TEXAS_HOLD_EM_MESSAGE_HPP
+#endif //TEXAS_HOLD_EM_UPDATE_HPP
