@@ -22,9 +22,9 @@ void Session::DoRead() {
 void Session::DoReadHeader() {
   auto self(shared_from_this());
   boost::asio::async_read(Socket,
-			  boost::asio::buffer(ReadUpdate.data(), Update::header_length),
+			  boost::asio::buffer(ReadUpdate.data(), Update::HeaderLength),
 			  [this, self](boost::system::error_code ErrorCode, std::size_t) {
-			    if (!ErrorCode && ReadUpdate.decode_header()) {
+			    if (!ErrorCode && ReadUpdate.MakeHeader()) {
 			      DoReadBody();
 			    }
 			    else {
@@ -37,7 +37,7 @@ void Session::DoReadHeader() {
 void Session::DoReadBody() {
   auto self(shared_from_this());
   boost::asio::async_read(Socket,
-                          boost::asio::buffer(ReadUpdate.body(), ReadUpdate.body_length()),
+                          boost::asio::buffer(ReadUpdate.Body(), ReadUpdate.RetBodyLength()),
                           [this, self](boost::system::error_code ErrorCode, std::size_t) {
                             if (!ErrorCode) {
                               Tbl.Signal(ReadUpdate);

@@ -100,10 +100,10 @@ private:
   {
     auto self(shared_from_this());
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), Update::header_length),
+                            boost::asio::buffer(read_msg_.data(), Update::HeaderLength),
                             [this, self](boost::system::error_code ec, std::size_t /*length*/)
                             {
-                              if (!ec && read_msg_.decode_header())
+                              if (!ec && read_msg_.MakeHeader())
                               {
                                 do_read_body();
                               }
@@ -118,7 +118,7 @@ private:
   {
     auto self(shared_from_this());
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+                            boost::asio::buffer(read_msg_.Body(), read_msg_.RetBodyLength()),
                             [this, self](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec)

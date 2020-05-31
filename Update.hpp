@@ -17,74 +17,74 @@
 class Update
 {
 public:
-  enum {header_length = 4};
-  enum {max_body_length = 512};
+  enum {HeaderLength = 4};
+  enum {MaxBodyLength = 512};
 
   Update()
-      : body_length_(0)
+      : BodyLength(0)
   {
   }
 
   const char* data() const
   {
-    return data_;
+    return Data;
   }
 
   char* data()
   {
-    return data_;
+    return Data;
   }
 
   std::size_t length() const
   {
-    return header_length + body_length_;
+    return HeaderLength + BodyLength;
   }
 
-  const char* body() const
+  const char* Body() const
   {
-    return data_ + header_length;
+    return Data + HeaderLength;
   }
 
-  char* body()
+  char* Body()
   {
-    return data_ + header_length;
+    return Data + HeaderLength;
   }
 
-  std::size_t body_length() const
+  std::size_t RetBodyLength() const
   {
-    return body_length_;
+    return BodyLength;
   }
 
-  void body_length(std::size_t new_length)
+  void MkBodyLength(std::size_t NewLength)
   {
-    body_length_ = new_length;
-    if (body_length_ > max_body_length)
-      body_length_ = max_body_length;
+    BodyLength = NewLength;
+    if (BodyLength > MaxBodyLength)
+      BodyLength = MaxBodyLength;
   }
 
-  bool decode_header()
+  bool MakeHeader()
   {
-    char header[header_length + 1] = "";
-    std::strncat(header, data_, header_length);
-    body_length_ = std::atoi(header);
-    if (body_length_ > max_body_length)
+    char Header[HeaderLength + 1] = "";
+    std::strncat(Header, Data, HeaderLength);
+    BodyLength = std::atoi(Header);
+    if (BodyLength > MaxBodyLength)
     {
-      body_length_ = 0;
+      BodyLength = 0;
       return false;
     }
     return true;
   }
 
-  void encode_header()
+  void EncodeHeader()
   {
-    char header[header_length + 1] = "";
-    std::sprintf(header, "%4d", static_cast<int>(body_length_));
-    std::memcpy(data_, header, header_length);
+    char Header[HeaderLength + 1] = "";
+    std::sprintf(Header, "%4d", static_cast<int>(BodyLength));
+    std::memcpy(Data, Header, HeaderLength);
   }
 
 private:
-  char data_[header_length + max_body_length];
-  std::size_t body_length_;
+  char Data[HeaderLength + MaxBodyLength];
+  std::size_t BodyLength;
 };
 
 #endif // CHAT_MESSAGE_HPP

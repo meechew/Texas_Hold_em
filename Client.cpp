@@ -107,10 +107,10 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.data(), Update::header_length),
+                            boost::asio::buffer(read_msg_.data(), Update::HeaderLength),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
-                              if (!ec && read_msg_.decode_header())
+                              if (!ec && read_msg_.MakeHeader())
                               {
                                 do_read_body();
                               }
@@ -124,12 +124,12 @@ private:
   void do_read_body()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+                            boost::asio::buffer(read_msg_.Body(), read_msg_.RetBodyLength()),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec)
                               {
-                                std::cout.write(read_msg_.body(), read_msg_.body_length());
+                                std::cout.write(read_msg_.Body(), read_msg_.RetBodyLength());
                                 std::cout << "\n";
                                 do_read_header();
                               }
@@ -187,13 +187,13 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    char line[Update::max_body_length + 1];
-    while (std::cin.getline(line, Update::max_body_length + 1))
+    char line[Update::MaxBodyLength + 1];
+    while (std::cin.getline(line, Update::MaxBodyLength + 1))
     {
       Update msg;
-      msg.body_length(std::strlen(line));
-      std::memcpy(msg.body(), line, msg.body_length());
-      msg.encode_header();
+      msg.MkBodyLength(std::strlen(line));
+      std::memcpy(msg.Body(), line, msg.RetBodyLength());
+      msg.EncodeHeader();
       c.write(msg);
     }
 
