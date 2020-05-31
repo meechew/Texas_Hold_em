@@ -13,6 +13,7 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
+#include <boost/spirit.hpp>
 #include "Player.hpp"
 #include "Update.hpp"
 
@@ -48,13 +49,13 @@ private:
 };
 
 class Session:
-    public Seat,
-    public std::enable_shared_from_this<Session> {
+  public Seat,
+  public std::enable_shared_from_this<Session> {
 public:
   Session(tcp::socket Skt,TableServer& Tbl)
-      : Socket(std::move(Skt)), Tbl(Tbl) {}
+    : Socket(std::move(Skt)), Tbl(Tbl) {}
   void Start();
-  void Deliver (const Update& Upd);
+  void Signal (const Update& Upd);
 private:
   tcp::socket Socket;
   TableServer Tbl;
@@ -72,8 +73,8 @@ private:
 class NetworkController {
 public:
   NetworkController(boost::asio::io_context& Context,
-      const tcp::endpoint& Endpoint):
-      Acceptor(Context, Endpoint) {
+		    const tcp::endpoint& Endpoint):
+    Acceptor(Context, Endpoint) {
     DoAccept();
   }
 
@@ -83,15 +84,5 @@ private:
   TableServer Tbl;
 };
 
-/*class NetworkController {
-public:
-  NetworkController(boost::asio::io_context& io_context, short port)
-      : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
-        {do_accept();}
-
-private:
-  void do_accept();
-  tcp::acceptor acceptor_;
-};*/
 
 #endif //TEXAS_HOLD_EM_NETWORKCONTROLLER_HPP
