@@ -4,8 +4,8 @@
 #include "Player.hpp"
 
 void Player::NewHand(cards Dealt) {
-  hand.first = Dealt.front();
-  hand.second = Dealt.back();
+  Hand.first = Dealt.front();
+  Hand.second = Dealt.back();
 }
 
 // For switching cards drawn. Because a single card is the front
@@ -13,26 +13,23 @@ void Player::NewHand(cards Dealt) {
 // but we do not switch cards in texas hold em
 void Player::Draw(cards Dealt, bool First, bool Second) {
   if (First)
-    hand.first = Dealt.front();
+    Hand.first = Dealt.front();
   if (Second)
-    hand.second = Dealt.back();
+    Hand.second = Dealt.back();
 }
 
-void Player::AddPlayer(std::string n) {
+void Player::AddPlayer(string n) {
   Name = std::move(n);
 }
 
-cards Player::Call() {
-  cards ret;
-  ret.emplace_back(hand.first);
-  ret.emplace_back(hand.second);
-  return ret;
+hand Player::Call() {
+  return Hand;
 }
 
 void Player::Fold() {
-  hand = std::make_pair<card,card>(card(0,0),card(0,0));
+  Hand = std::make_pair<card,card>(card(0, 0), card(0, 0));
 }
 
-std::string Player::Who() {
+string Player::Who() {
   return Name;
 }

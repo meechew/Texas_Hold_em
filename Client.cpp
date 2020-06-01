@@ -10,8 +10,8 @@
 // std::vector<char> buff(256);
 
 // void ReadHandler(boost::system::error_code ex){
-//   std::cout << " print the buffer data..." << std::endl;
-//   std::cout << buff.data() << std::endl;
+//   std::cout << " print the buffer RetData..." << std::endl;
+//   std::cout << buff.RetData() << std::endl;
 
 // }
 

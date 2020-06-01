@@ -7,9 +7,6 @@
 #define TEXAS_HOLD_EM_UPDATE_HPP
 
 
-#ifndef CHAT_UPDATE_HPP
-#define CHAT_UPDATE_HPP
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -25,7 +22,7 @@ public:
   {
   }
 
-  const char* data() const
+  const char* RetData() const
   {
     return Data;
   }
@@ -87,5 +84,5 @@ private:
   std::size_t BodyLength;
 };
 
-#endif // CHAT_MESSAGE_HPP
+
 #endif //TEXAS_HOLD_EM_UPDATE_HPP

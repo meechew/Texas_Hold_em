@@ -36,10 +36,16 @@ card Deck::Burn() {
   return ret;
 }
 
-
 cards operator+(const cards& lhs, const cards& rhs) {
   cards ret = lhs;
   for(auto k : rhs)
     ret.emplace_back(k);
-  return cards();
+  return ret;
+}
+
+cards operator+(const cards& lhs, const hand& rhs) {
+  cards ret = lhs;
+  ret.emplace_back(rhs.first);
+  ret.emplace_back(rhs.second);
+  return ret;
 }

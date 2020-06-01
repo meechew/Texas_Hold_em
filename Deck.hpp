@@ -8,9 +8,10 @@
 #include <iostream>
 #include <chrono>
 #include <boost/range/algorithm/sort.hpp>
-#include <boost/container/vector.hpp>
+#include <boost/container/container_fwd.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <boost/container/map.hpp>
+#include <boost/container/vector.hpp>
 #include "RandomEngine.hpp"
 #define CLUB  2660
 #define DIAM  2665
@@ -33,8 +34,9 @@ struct card {
 };
 
 typedef vector<card> cards;
-typedef std::pair<card,card> pair;
+typedef std::pair<card, card> hand;
 cards operator+(const cards& lhs, const cards& rhs);
+cards operator+(const cards& lhs, const hand& rhs);
 
 class Deck {
 private:
