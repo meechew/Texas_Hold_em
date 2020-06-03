@@ -37,7 +37,8 @@ void Session::DoReadHeader() {
 void Session::DoReadBody() {
   auto self(shared_from_this());
   boost::asio::async_read(Socket,
-                          boost::asio::buffer(ReadUpdate.Body(), ReadUpdate.RetBodyLength()),
+                          boost::asio::buffer(ReadUpdate.Body(),
+					      ReadUpdate.RetBodyLength()),
                           [this, self](boost::system::error_code ErrorCode, std::size_t) {
                             if (!ErrorCode) {
                               Tbl.Signal(ReadUpdate);
@@ -66,7 +67,7 @@ void Session::DoWrite() {
 			     else {
 			       Tbl.Leave(shared_from_this());
 			     }
-                           });
+			   });
 }
 
 void NetworkController::DoAccept() {

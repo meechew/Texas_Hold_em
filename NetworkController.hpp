@@ -13,7 +13,6 @@
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include <boost/spirit.hpp>
 #include "Player.hpp"
 #include "Update.hpp"
 
@@ -23,8 +22,7 @@ typedef std::deque<Update> UpdateQueue;
 
 class Seat {
 public:
-  virtual ~Seat();
-  virtual void Signal(const Update& Upd);
+  virtual void Signal(const Update& Upd) = 0;
 };
 
 typedef std::shared_ptr<Seat> SeatPtr;
@@ -62,7 +60,7 @@ private:
   Update ReadUpdate;
   UpdateQueue WriteUpdate;
   enum {max_length = 1024};
-  char data_[max_length];
+  char Data[max_length];
 
   void DoRead();
   void DoReadHeader();

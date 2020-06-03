@@ -18,7 +18,6 @@ public:
   explicit Player(string n):
       Name(std::move(n)) {}
   void NewHand(cards Dealt);
-  void Draw(cards Dealt, bool First, bool Second);
   void AddPlayer(string n);
   void Fold();
   string Who();

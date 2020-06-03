@@ -10,6 +10,7 @@ class Game {
 private:
   Deck Dealer;
 public:
+  cards Deal(int quant) {return Dealer.Deal(quant);}
   cards Flop();
   card River();
   card Turn();
