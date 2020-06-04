@@ -23,9 +23,9 @@ std::ostream &operator<<(std::ostream &out, const ServerPackage& s) {
     out << R"({ "Rank" : )" << s.Tbl[k].rank << ','
         << R"( "Suit" : )" << s.Tbl[k].suit << '}';
     if (k < 4) out << ',';
+    else out << "]}}";
   }
-  out << "]}}"
-  ;
+
   return out;
 }
 
@@ -58,6 +58,64 @@ std::istream &operator>>(std::istream &in, ServerPackage &s){
   in.ignore(100,'"');
   in.get(c,100,'"');
   s.Name = c;
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Winner",c));
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  s.Winner = c;
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Hand",c));
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("First",c));
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Rank",c));
+  in.ignore(100,'"');
+  in.get(*c);
+  s.Hand.first.rank = atoi(c);
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Suit",c));
+  in.ignore(100,'"');
+  in.get(*c);
+  s.Hand.first.suit = atoi(c);
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Second",c));
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Rank",c));
+  in.ignore(100,'"');
+  in.get(*c);
+  s.Hand.second.rank = atoi(c);
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("Suit",c));
+  in.ignore(100,'"');
+  in.get(*c);
+  s.Hand.second.suit = atoi(c);
+  in.ignore(100,'"');
+  in.get(c,100,'"');
+  assert(strcmp("CommonCards",c));
+
+  for (int k = 0; k < 5; ++k) {
+    in.ignore(100,'"');
+    in.get(c,100,'"');
+    assert(strcmp("Rank",c));
+    in.ignore(100,'"');
+    in.get(*c);
+    s.Tbl[k].rank = atoi(c);
+    in.ignore(100,'"');
+    in.get(c,100,'"');
+    assert(strcmp("Suit",c));
+    in.ignore(100,'"');
+    in.get(*c);
+    s.Tbl[k].suit = atoi(c);
+  }
+
   delete c;
 }
 
