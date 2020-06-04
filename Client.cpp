@@ -3,53 +3,6 @@
 
 #ifndef TEXAS_HOLD_EM_CLIENT_CPP
 #define TEXAS_HOLD_EM_CLIENT_CPP
-// #include <iostream>
-// #include <vector>
-// #include <boost/asio.hpp>
-
-// std::vector<char> buff(256);
-
-// void ReadHandler(boost::system::error_code ex){
-//   std::cout << " print the buffer RetData..." << std::endl;
-//   std::cout << buff.RetData() << std::endl;
-
-// }
-
-// void Client(char* IP) {
-//   boost::asio::io_service service;
-//   using namespace boost::asio::ip;
-//   tcp::endpoint endpoint(address::from_string(IP), 5000);
-//   tcp::socket socket(service);
-//   std::cout << "[Client] Connecting to server..." << std::endl;
-//   socket.connect(endpoint);
-//   std::cout << "[Client] Connection successful" << std::endl;
-
-//   socket.async_read_some(boost::asio::buffer(buff), ReadHandler);
-//   service.run();
-// }
-
-// int main(int argc, char **argv) {
-//   if(argc == 1){
-//     std::cerr << "Usage: async_tcp_echo_server <port>" << std::endl;
-//     return -1;
-//   }
-
-//   std::cout << "starting client" << std::endl;
-
-//   Client(argv[1]);
-
-//   return 0;
-// }
-//
-// chat_client.cpp
-// ~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2020 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include <cstdlib>
 #include <deque>
 #include <iostream>

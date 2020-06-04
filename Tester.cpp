@@ -54,5 +54,5 @@ int main() {
   T_Table.Flop();
   T_Table.River();
   T_Table.Turn();
-  std::cout << "\nPackaged: \n" << *T_Table.Package(0) << '\n';
+  std::cout << "\nPackaged: \n" << *T_Table.Package(0, false, false, false) << '\n';
 }

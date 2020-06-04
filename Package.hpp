@@ -5,6 +5,7 @@
 #define TEXAS_HOLD_EM_PACKAGE_HPP
 #include "Player.hpp"
 #include <boost/container/vector.hpp>
+#include <stdio.h>
 
 class ServerPackage {
 public:
@@ -18,6 +19,18 @@ public:
   ServerPackage(bool hb, bool wn, bool sp, string n, string w, hand h, boost::container::vector<card> tbl):
     HeartBeat(hb), WinnerNotice(wn), SplitPot(sp), Name(n), Hand(h), Tbl(tbl){}
   friend std::ostream &operator<<(std::ostream &out, const ServerPackage &s);
+  friend std::istream &operator>>(std::istream &in, ServerPackage &s);
+};
+
+class ClientPackage {
+  bool HeartBeat;
+  bool NewGame;
+  bool Leave;
+  string Name;
+  ClientPackage(bool hb, bool ng, bool l, string n):
+    HeartBeat(hb), NewGame(ng), Leave(l), Name(n){}
+  friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
+  friend std::istream &operator>>(std::istream &in, ClientPackage &s);
 };
 
 #endif //TEXAS_HOLD_EM_PACKAGE_HPP
