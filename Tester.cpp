@@ -5,7 +5,7 @@
 #include "Player.hpp"
 #include "FaceValues.hpp"
 #include "Package.hpp"
-#include "Table.hpp"
+#include "NetworkController.hpp"
 
 int main() {
   Deck T_Deck;

@@ -15,27 +15,22 @@ Table::Table() {
 }
 
 boost::thread Table::TheadStarter() {
-  return boost::thread([this]{StartServer();});
+  return boost::thread([this]{ StartHeartBeat();});
 }
 
-[[noreturn]] void Table::StartServer() {
+[[noreturn]] void Table::StartHeartBeat() {
   std::cerr << "--STARTING SERVER--\n";
-  try {
-    tcp::endpoint EndPoint(tcp::v4(), 5000);
-    Context.run();
-  } catch (std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-  }
+
   Update UpDt;
   std::stringstream StringBuff;
   for(;;) {
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
-    for(int k = 0; k < 5 ; ++k) {
-      StringBuff << Package(k, true, false, false);
+    for(const auto& p : SeatedPlayers) {
+      StringBuff << Package(p.second, true, false, false);
       UpDt.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
       std::memcpy(UpDt.Body(),StringBuff.str().c_str(), UpDt.RetBodyLength() );
       UpDt.EncodeHeader();
-
+      p.first->Signal(UpDt);
     }
   }
 }
@@ -87,9 +82,25 @@ cards Table::Flop() {
   return ret;
 }
 
-card Table::River() {
+card Table::Turn() {
   card ret = TableGame->River();
   CommonCards.emplace_back(ret);
+  return ret;
+}
+
+card Table::River() {
+  card ret = TableGame->Turn();
+  CommonCards.emplace_back(ret);
+//  int k = 0;
+//  for (auto p : HostPlayers) {
+//    FinalHands[k].player = p;
+//  }
+  for (int k = 0; k < 5; ++k) {
+    if (!FinalHands[k].player)
+      continue;
+    FinalHands[k].player = std::make_shared<Player>(HostPlayers[k]);
+    FinalHands[k].FinalHand = CommonCards + HostPlayers[k].Call();
+  }
   return ret;
 }
 
@@ -153,21 +164,6 @@ ScoreBoard Table::Tabulate(const cards& Hand) {
                    Straight, ThreeKind, TwoPair, Pair1, HighCard);
 }
 
-card Table::Turn() {
-  card ret = TableGame->Turn();
-  CommonCards.emplace_back(ret);
-//  int k = 0;
-//  for (auto p : HostPlayers) {
-//    FinalHands[k].player = p;
-//  }
-  for (int k = 0; k < 5; ++k) {
-    if (!FinalHands[k].player)
-      continue;
-    FinalHands[k].player = std::make_shared<Player>(HostPlayers[k]);
-    FinalHands[k].FinalHand = CommonCards + HostPlayers[k].Call();
-  }
-  return ret;
-}
 
 Player* Table::CheckForWinner() {
   Player* ret = nullptr;
@@ -226,10 +222,10 @@ Player* Table::CheckForWinner() {
 
 
   
-  return nullptr;
+  return ret;
 }
 
-ServerPackage * Table::Package(int n, bool hb, bool wn, bool sp) {
-  return new ServerPackage(hb, wn, sp, HostPlayers[n].Who(),"",HostPlayers[n].Call(),CommonCards);
+ServerPackage * Table::Package(PlayerPtr p, bool hb, bool wn, bool sp) {
+  return new ServerPackage(hb, wn, sp, p->Who(),"", p->Call(),CommonCards);
 }
 

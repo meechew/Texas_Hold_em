@@ -68,6 +68,8 @@ private:
   PlayerFinals FinalHands;
   static ScoreBoard Tabulate(const cards&);
   int NewPlayer(boost::container::string name);
+
+  [[noreturn]] void StartHeartBeat();
   boost::thread TheadStarter();
   boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
   std::shared_ptr<boost::thread> ServerThread;
@@ -81,10 +83,10 @@ public:
   void GameStart();
   void Deal();
   cards Flop();
-  card River();
   card Turn();
+  card River();
   Player* CheckForWinner();
-  ServerPackage *Package(int n, bool hb, bool wn, bool sp);
+  ServerPackage *Package(PlayerPtr p, bool hb, bool wn, bool sp);
 };
 
 /*class TableServer {
@@ -104,11 +106,12 @@ class Session:
   public std::enable_shared_from_this<Session> {
 public:
   Session(tcp::socket Skt,Table& Tbl)
-    : Socket(std::move(Skt)), Tbl(Tbl) {}
+    : Skt(std::move(Skt)), Tbl(Tbl) {}
+  tcp::socket& Socket() {return Skt;}
   void Start();
   void Signal (const Update& Upd);
 private:
-  tcp::socket Socket;
+  tcp::socket Skt;
   Table& Tbl;
   Update ReadUpdate;
   UpdateQueue WriteUpdate;
