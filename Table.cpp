@@ -30,29 +30,40 @@ boost::thread Table::TheadStarter() {
       UpDt.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
       std::memcpy(UpDt.Body(),StringBuff.str().c_str(), UpDt.RetBodyLength() );
       UpDt.EncodeHeader();
+      p.first->CountTimer();
       p.first->Signal(UpDt);
     }
   }
 }
 
-int Table::NewPlayer(boost::container::string name) {
+int Table::NewPlayer(const boost::container::string& name) {
   boost::format Fmt;
 
   for (int k = 0; k < 5; ++k) {
     Fmt = boost::format("Player%1%") %k;
     if (Fmt.str().c_str() != HostPlayers[k].Who()) {
       HostPlayers[k].AddPlayer(name);
-      return 0;
+      return k;
     }
   }
 
   return -1;
 }
 
-int Table::IncomingPlayer(SeatPtr) {
+// Take a pointer to a socket and the first message from that socket
+// Pulls the Name out of it and assigning association with player pointer.
+int Table::IncomingPlayer(const SeatPtr& Seat, Update UpDt) {
+  boost::interprocess::bufferstream BuffersStream(UpDt.Body(),UpDt.RetBodyLength());
+  ServerPackage Pack;
+  int pos;
+  BuffersStream >> Pack;
+  pos = NewPlayer(Pack.Name);
+  if (pos < 0)
+    return pos;
 
+  SeatedPlayers[Seat] = std::make_shared<Player>(HostPlayers[pos]);
 
-  return 0;
+  return pos;
 }
 
 void Table::PlayerLeave(SeatPtr Seat) {
@@ -60,13 +71,18 @@ void Table::PlayerLeave(SeatPtr Seat) {
   SeatedPlayers.erase(Seat);
 }
 
-void Table::IncomingUpdate(Update) {
+ServerPackage Table::IncomingUpdate(const SeatPtr &Seat, Update UpDt) {
+  boost::interprocess::bufferstream BuffersStream(UpDt.Body(),UpDt.RetBodyLength());
+  ServerPackage Pack;
+  BuffersStream >> Pack;
+  if (Pack.HeartBeat) {
+    Seat->ResetTimer();
+  }
 
 }
 
 void Table::GameStart() {
-  if (TableGame)
-    delete TableGame;
+  delete TableGame;
   TableGame = new Game;
 }
 
@@ -91,10 +107,6 @@ card Table::Turn() {
 card Table::River() {
   card ret = TableGame->Turn();
   CommonCards.emplace_back(ret);
-//  int k = 0;
-//  for (auto p : HostPlayers) {
-//    FinalHands[k].player = p;
-//  }
   for (int k = 0; k < 5; ++k) {
     if (!FinalHands[k].player)
       continue;

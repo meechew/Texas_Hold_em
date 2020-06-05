@@ -49,10 +49,9 @@ int main() {
 
 
   Table T_Table;
-  T_Table.NewPlayer(std::move(Player1.Who()));
   T_Table.Deal();
   T_Table.Flop();
-  T_Table.River();
   T_Table.Turn();
+  T_Table.River();
   std::cout << "\nPackaged: \n" << *T_Table.Package(0, false, false, false) << '\n';
 }

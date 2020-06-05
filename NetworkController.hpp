@@ -13,8 +13,9 @@
 #include <memory>
 #include <utility>
 #include <boost/asio.hpp>
-#include <local/include/boost/array.hpp>
-#include <local/include/boost/thread.hpp>
+#include <boost/interprocess/streams/bufferstream.hpp>
+#include <boost/array.hpp>
+#include <boost/thread.hpp>
 #include <boost/format.hpp>
 #include "Player.hpp"
 #include "Update.hpp"
@@ -28,6 +29,8 @@ typedef std::deque<Update> UpdateQueue;
 class Seat {
 public:
   virtual void Signal(const Update& Upd) = 0;
+  virtual void ResetTimer() = 0;
+  virtual void CountTimer() = 0;
 };
 
 typedef std::shared_ptr<Seat> SeatPtr;
@@ -67,7 +70,7 @@ private:
   Players HostPlayers;
   PlayerFinals FinalHands;
   static ScoreBoard Tabulate(const cards&);
-  int NewPlayer(boost::container::string name);
+  int NewPlayer(const boost::container::string& name);
 
   [[noreturn]] void StartHeartBeat();
   boost::thread TheadStarter();
@@ -77,9 +80,9 @@ private:
 public:
   cards CommonCards;
   Table();
-  int IncomingPlayer(SeatPtr);
+  int IncomingPlayer(const SeatPtr& Seat, Update UpDt);
   void PlayerLeave(SeatPtr);
-  void IncomingUpdate(Update);
+  ServerPackage IncomingUpdate(const SeatPtr &Seat, Update UpDt);
   void GameStart();
   void Deal();
   cards Flop();
@@ -89,36 +92,24 @@ public:
   ServerPackage *Package(PlayerPtr p, bool hb, bool wn, bool sp);
 };
 
-/*class TableServer {
-public:
-  void Join(SeatPtr SeatedPlayer);
-  void Leave(SeatPtr SeatedPlayer) {Seats.erase(SeatedPlayer);}
-  void Signal(const Update& Upd);
-  TableServer(std::shared_ptr<Table> TblPtr): TblPtr(TblPtr) {}
-private:
-  std::set<SeatPtr> Seats;
-  enum {MaxQueue = 100};
-  UpdateQueue RecentUpdates;
-};*/
-
 class Session:
   public Seat,
   public std::enable_shared_from_this<Session> {
 public:
   Session(tcp::socket Skt,Table& Tbl)
     : Skt(std::move(Skt)), Tbl(Tbl) {}
-  tcp::socket& Socket() {return Skt;}
   void Start();
-  void Signal (const Update& Upd);
+  void Signal (const Update& Upd) override;
+  void ResetTimer() override {Timer = 0;}
+  void CountTimer() override {++Timer;}
 private:
+  int Timer = 0;
   tcp::socket Skt;
   Table& Tbl;
   Update ReadUpdate;
   UpdateQueue WriteUpdate;
   enum {max_length = 1024};
   char Data[max_length];
-
-  void DoRead();
   void DoReadHeader();
   void DoReadBody();
   void DoWrite();

@@ -2,25 +2,23 @@
 //
 
 #include "NetworkController.hpp"
-/*
-void TableServer::Join(SeatPtr SeatedPlayer) {
-  Seats.insert(SeatedPlayer);
-  for(auto UpDt: RecentUpdates)
-    SeatedPlayer->Signal(UpDt);
-}
-
-void TableServer::Signal(const Update &Upd) {
-  RecentUpdates.push_back(Upd);
-  while (RecentUpdates.size() > MaxQueue)
-    RecentUpdates.pop_front();
-
-  for (auto seat : Seats)
-    seat->Signal(Upd);
-}*/
 
 void Session::Start() {
-  Tbl.IncomingPlayer(shared_from_this());
-  DoRead();
+  auto self(shared_from_this());
+  boost::asio::async_read(Skt,
+      boost::asio::buffer(ReadUpdate.data(), Update::HeaderLength),
+      [this, self](boost::system::error_code ErrorCode, std::size_t) {
+        if (!ErrorCode && ReadUpdate.MakeHeader()) {
+          boost::asio::async_read(Skt,
+              boost::asio::buffer(ReadUpdate.Body(),
+                  ReadUpdate.RetBodyLength()),
+              [this, self](boost::system::error_code ErrorCode, std::size_t) {
+                if (!ErrorCode) {
+                  Tbl.IncomingPlayer(self, ReadUpdate);
+                }});
+        }
+  });
+  DoReadHeader();
 }
 
 void Session::Signal(const Update& Upd) {
@@ -30,13 +28,9 @@ void Session::Signal(const Update& Upd) {
     DoWrite();
 }
 
-void Session::DoRead() {
-
-}
-
 void Session::DoReadHeader() {
   auto self(shared_from_this());
-  boost::asio::async_read(Socket,
+  boost::asio::async_read(Skt,
 			  boost::asio::buffer(ReadUpdate.data(), Update::HeaderLength),
 			  [this, self](boost::system::error_code ErrorCode, std::size_t) {
 			    if (!ErrorCode && ReadUpdate.MakeHeader()) {
@@ -51,12 +45,12 @@ void Session::DoReadHeader() {
 
 void Session::DoReadBody() {
   auto self(shared_from_this());
-  boost::asio::async_read(Socket,
+  boost::asio::async_read(Skt,
         boost::asio::buffer(ReadUpdate.Body(),
           ReadUpdate.RetBodyLength()),
         [this, self](boost::system::error_code ErrorCode, std::size_t) {
           if (!ErrorCode) {
-            Tbl.IncomingUpdate(ReadUpdate);
+            Tbl.IncomingUpdate(self, ReadUpdate);
             DoReadHeader();
           }
           else {
@@ -67,11 +61,11 @@ void Session::DoReadBody() {
 
 void Session::DoWrite() {
   auto self(shared_from_this());
-  boost::asio::async_write(Socket,
+  boost::asio::async_write(Skt,
 			   boost::asio::buffer(WriteUpdate.front().data(),
 					       WriteUpdate.front().length()),
 			   [this, self](boost::system::error_code ErrorCode,
-					std::size_t)
+					  std::size_t)
                            {
 			     if (!ErrorCode) {
 			       WriteUpdate.pop_front();
