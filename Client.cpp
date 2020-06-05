@@ -9,6 +9,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include "Update.hpp"
+#include "Package.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -140,10 +141,20 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
+    ClientPackage cpack(false, false, false, "Client");
+    Update msg;
+    std::stringstream StringBuff;
+    StringBuff << cpack;
+
+    msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
+    std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
+    msg.EncodeHeader();
+    c.write(msg);
+
     char line[Update::MaxBodyLength + 1];
     while (std::cin.getline(line, Update::MaxBodyLength + 1))
     {
-      Update msg;
+
       msg.MkBodyLength(std::strlen(line));
       std::memcpy(msg.Body(), line, msg.RetBodyLength());
       msg.EncodeHeader();

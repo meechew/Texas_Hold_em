@@ -49,7 +49,7 @@ int main() {
 
 
   Table T_Table;
-  T_Table.NewPlayer(std::move(Player1.Who()),0);
+  T_Table.NewPlayer(std::move(Player1.Who()));
   T_Table.Deal();
   T_Table.Flop();
   T_Table.River();

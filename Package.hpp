@@ -23,12 +23,13 @@ public:
 };
 
 class ClientPackage {
+public:
   bool HeartBeat;
   bool NewGame;
   bool Leave;
   string Name;
   ClientPackage(bool hb, bool ng, bool l, string n):
-    HeartBeat(hb), NewGame(ng), Leave(l), Name(n){}
+    HeartBeat(hb), NewGame(ng), Leave(l), Name(std::move(n)){}
   friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
   friend std::istream &operator>>(std::istream &in, ClientPackage &s);
 };

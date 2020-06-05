@@ -1,7 +1,7 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#ifndef TEXAS_HOLD_EM_TABLE_HPP
+#ifdef TEXAS_HOLD_EM_TABLE_HPP
 #define TEXAS_HOLD_EM_TABLE_HPP
 
 #include <boost/array.hpp>
@@ -13,7 +13,6 @@
 #include "Player.hpp"
 #include "Game.hpp"
 #include "Package.hpp"
-#include "NetworkController.hpp"
 
 
 struct ScoreBoard {
@@ -53,15 +52,13 @@ private:
   static ScoreBoard Tabulate(const cards&);
   boost::thread TheadStarter();
 
-  [[noreturn]] void StartServer();
-  boost::asio::io_context Context;
   std::shared_ptr<boost::thread> ServerThread;
-  std::shared_ptr<NetworkController> ServerPtr;
 
 public:
   cards CommonCards;
   Table();
-  void NewPlayer(boost::container::string name, int pos);
+  int NewPlayer(boost::container::string name);
+  void PlayerLeave(PlayerPtr);
   void GameStart();
   void Deal();
   cards Flop();

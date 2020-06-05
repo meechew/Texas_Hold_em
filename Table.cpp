@@ -1,19 +1,17 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#include "Table.hpp"
+#include "NetworkController.hpp"
 
 Table::Table() {
   TableGame = new Game;
   ServerThread = std::make_shared<boost::thread>(TheadStarter());
-  NewPlayer("Player1",1);
-  NewPlayer("Player2",2);
-  NewPlayer("Player3",3);
-  NewPlayer("Player4",4);
-  NewPlayer("Player5",5);
-  //for(int k = 0; k < 5; ++k) {
-  //  NewPlayer(boost::format("Player%1%") %k, k);
-  //}
+  boost::format Fmt;
+
+  for(int k = 0; k < 5; ++k) {
+    Fmt = boost::format("Player%1%") %k;
+    NewPlayer(boost::container::string(Fmt.str().c_str()));
+  }
 }
 
 boost::thread Table::TheadStarter() {
@@ -42,8 +40,33 @@ boost::thread Table::TheadStarter() {
   }
 }
 
-void Table::NewPlayer(boost::container::string name, int pos) {
-  HostPlayers[pos].AddPlayer(std::move(name));
+int Table::NewPlayer(boost::container::string name) {
+  boost::format Fmt;
+
+  for (int k = 0; k < 5; ++k) {
+    Fmt = boost::format("Player%1%") %k;
+    if (Fmt.str().c_str() != HostPlayers[k].Who()) {
+      HostPlayers[k].AddPlayer(name);
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
+int Table::IncomingPlayer(SeatPtr) {
+
+
+  return 0;
+}
+
+void Table::PlayerLeave(SeatPtr Seat) {
+  SeatedPlayers[Seat]->Fold();
+  SeatedPlayers.erase(Seat);
+}
+
+void Table::IncomingUpdate(Update) {
+
 }
 
 void Table::GameStart() {

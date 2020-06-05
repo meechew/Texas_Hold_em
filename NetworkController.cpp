@@ -2,9 +2,24 @@
 //
 
 #include "NetworkController.hpp"
+/*
+void TableServer::Join(SeatPtr SeatedPlayer) {
+  Seats.insert(SeatedPlayer);
+  for(auto UpDt: RecentUpdates)
+    SeatedPlayer->Signal(UpDt);
+}
+
+void TableServer::Signal(const Update &Upd) {
+  RecentUpdates.push_back(Upd);
+  while (RecentUpdates.size() > MaxQueue)
+    RecentUpdates.pop_front();
+
+  for (auto seat : Seats)
+    seat->Signal(Upd);
+}*/
 
 void Session::Start() {
-  Tbl.Join(shared_from_this());
+  Tbl.IncomingPlayer(shared_from_this());
   DoRead();
 }
 
@@ -28,7 +43,7 @@ void Session::DoReadHeader() {
 			      DoReadBody();
 			    }
 			    else {
-			      Tbl.Leave(shared_from_this());
+			      Tbl.PlayerLeave(shared_from_this());
 			    }
 			  });
 
@@ -37,17 +52,17 @@ void Session::DoReadHeader() {
 void Session::DoReadBody() {
   auto self(shared_from_this());
   boost::asio::async_read(Socket,
-                          boost::asio::buffer(ReadUpdate.Body(),
-					      ReadUpdate.RetBodyLength()),
-                          [this, self](boost::system::error_code ErrorCode, std::size_t) {
-                            if (!ErrorCode) {
-                              Tbl.Signal(ReadUpdate);
-                              DoReadHeader();
-                            }
-                            else {
-                              Tbl.Leave(shared_from_this());
-                            }
-                          });
+        boost::asio::buffer(ReadUpdate.Body(),
+          ReadUpdate.RetBodyLength()),
+        [this, self](boost::system::error_code ErrorCode, std::size_t) {
+          if (!ErrorCode) {
+            Tbl.IncomingUpdate(ReadUpdate);
+            DoReadHeader();
+          }
+          else {
+            Tbl.PlayerLeave(shared_from_this());
+          }
+        });
 }
 
 void Session::DoWrite() {
@@ -65,7 +80,7 @@ void Session::DoWrite() {
 			       }
 			     }
 			     else {
-			       Tbl.Leave(shared_from_this());
+			       Tbl.PlayerLeave(shared_from_this());
 			     }
 			   });
 }

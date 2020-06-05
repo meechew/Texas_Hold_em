@@ -8,13 +8,18 @@
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <list>
+//#include <list>
+//#include <set>
 #include <memory>
-#include <set>
 #include <utility>
 #include <boost/asio.hpp>
+#include <local/include/boost/array.hpp>
+#include <local/include/boost/thread.hpp>
+#include <boost/format.hpp>
 #include "Player.hpp"
 #include "Update.hpp"
+#include "Game.hpp"
+#include "Package.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -27,36 +32,84 @@ public:
 
 typedef std::shared_ptr<Seat> SeatPtr;
 
-class TableServer {
+struct ScoreBoard {
+  card HighCard = card(0, 0);
+  bool StraightFlush = false;
+  bool FourKind = false;
+  bool FullHouse = false;
+  bool Flush = false;
+  bool Straight = false;
+  bool ThreeKind = false;
+  bool TwoPair = false;
+  bool OnePair = false;
+  ScoreBoard() = default;
+  ScoreBoard(bool StraightFlush, bool FourKind, bool FullHouse, bool Flush, bool Straight,
+             bool ThreeKind, bool TwoPair, bool OnePair, const card &HighCard) : HighCard(HighCard), StraightFlush(StraightFlush),
+                                                                                 FourKind(FourKind), FullHouse(FullHouse), Flush(Flush), Straight(Straight),
+                                                                                 ThreeKind(ThreeKind), TwoPair(TwoPair), OnePair(OnePair) {}
+};
+
+typedef std::shared_ptr<Player> PlayerPtr;
+
+struct Finals {
+  PlayerPtr player;
+  cards FinalHand;
+  ScoreBoard FinalScore;
+};
+
+typedef boost::array<Finals,5> PlayerFinals;
+typedef boost::array<Player,5> Players;
+
+
+class Table {
+private:
+  Game *TableGame = nullptr;
+  Players HostPlayers;
+  PlayerFinals FinalHands;
+  static ScoreBoard Tabulate(const cards&);
+  int NewPlayer(boost::container::string name);
+  boost::thread TheadStarter();
+  boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
+  std::shared_ptr<boost::thread> ServerThread;
+
 public:
-  void Join(SeatPtr SeatedPlayer) {}
+  cards CommonCards;
+  Table();
+  int IncomingPlayer(SeatPtr);
+  void PlayerLeave(SeatPtr);
+  void IncomingUpdate(Update);
+  void GameStart();
+  void Deal();
+  cards Flop();
+  card River();
+  card Turn();
+  Player* CheckForWinner();
+  ServerPackage *Package(int n, bool hb, bool wn, bool sp);
+};
+
+/*class TableServer {
+public:
+  void Join(SeatPtr SeatedPlayer);
   void Leave(SeatPtr SeatedPlayer) {Seats.erase(SeatedPlayer);}
-  void Signal(const Update& Upd) {
-    RecentUpdates.push_back(Upd);
-    while (RecentUpdates.size() > MaxQueue)
-      RecentUpdates.pop_front();
-
-    for (auto seat : Seats)
-      seat->Signal(Upd);
-  }
-
+  void Signal(const Update& Upd);
+  TableServer(std::shared_ptr<Table> TblPtr): TblPtr(TblPtr) {}
 private:
   std::set<SeatPtr> Seats;
   enum {MaxQueue = 100};
   UpdateQueue RecentUpdates;
-};
+};*/
 
 class Session:
   public Seat,
   public std::enable_shared_from_this<Session> {
 public:
-  Session(tcp::socket Skt,TableServer& Tbl)
+  Session(tcp::socket Skt,Table& Tbl)
     : Socket(std::move(Skt)), Tbl(Tbl) {}
   void Start();
   void Signal (const Update& Upd);
 private:
   tcp::socket Socket;
-  TableServer Tbl;
+  Table& Tbl;
   Update ReadUpdate;
   UpdateQueue WriteUpdate;
   enum {max_length = 1024};
@@ -79,7 +132,7 @@ public:
 private:
   void DoAccept();
   tcp::acceptor Acceptor;
-  TableServer Tbl;
+  Table Tbl;
 };
 
 
