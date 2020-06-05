@@ -5,7 +5,7 @@
 
 Table::Table() {
   TableGame = new Game;
-  ServerThread = std::make_shared<boost::thread>(TheadStarter());
+  HeartBeatThread = std::make_shared<boost::thread>(TheadStarter());
   boost::format Fmt;
 
   for(int k = 0; k < 5; ++k) {
@@ -19,7 +19,7 @@ boost::thread Table::TheadStarter() {
 }
 
 [[noreturn]] void Table::StartHeartBeat() {
-  std::cerr << "--STARTING SERVER--\n";
+  std::cout << "--STARTING SERVER--\n";
 
   Update UpDt;
   std::stringstream StringBuff;
@@ -43,6 +43,7 @@ int Table::NewPlayer(const boost::container::string& name) {
     Fmt = boost::format("Player%1%") %k;
     if (Fmt.str().c_str() != HostPlayers[k].Who()) {
       HostPlayers[k].AddPlayer(name);
+      std::cout << "--Player: " << name << " Added--\n";
       return k;
     }
   }
@@ -71,12 +72,24 @@ void Table::PlayerLeave(SeatPtr Seat) {
   SeatedPlayers.erase(Seat);
 }
 
-ServerPackage Table::IncomingUpdate(const SeatPtr &Seat, Update UpDt) {
+void Table::IncomingUpdate(const SeatPtr &Seat, Update UpDt) {
   boost::interprocess::bufferstream BuffersStream(UpDt.Body(),UpDt.RetBodyLength());
-  ServerPackage Pack;
+  ClientPackage Pack;
   BuffersStream >> Pack;
+
   if (Pack.HeartBeat) {
     Seat->ResetTimer();
+    return;
+  }
+
+  if (Pack.NextStep) {
+    Step();
+    return;
+  }
+
+  if (Pack.Leave) {
+    PlayerLeave(Seat);
+    return;
   }
 
 }
@@ -84,10 +97,41 @@ ServerPackage Table::IncomingUpdate(const SeatPtr &Seat, Update UpDt) {
 void Table::GameStart() {
   delete TableGame;
   TableGame = new Game;
+  Stage = 0;
+}
+
+void Table::Step() {
+  switch (Stage) {
+    case 0:
+      Deal();
+      std::cout << "\tDeal\n";
+      return;
+    case 1:
+      Flop();
+      std::cout << "\tFlop\n";
+      return;
+    case 2:
+      Turn();
+      std::cout << "\tTurn\n";
+      return;
+    case 3:
+      River();
+      std::cout << "\tRiver\n";
+      return;
+    case 4:
+      CheckForWinner();
+      std::cout << "\tCall\n";
+      return;
+    case 5:
+      GameStart();
+      std::cout << "\tNew Game\n";
+      return;
+    default:
+      return;
+  }
 }
 
 void Table::Deal() {
-  cards tmp;
   for (int k = 0; k < 5; ++k)
     HostPlayers[k].NewHand(TableGame->Deal(2));
 }

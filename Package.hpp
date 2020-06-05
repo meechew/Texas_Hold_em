@@ -12,9 +12,9 @@ class ServerPackage {
 public:
   ServerPackage() = default;
 
-  bool HeartBeat{};
-  bool WinnerNotice{};
-  bool SplitPot{};
+  bool HeartBeat = false;
+  bool WinnerNotice = false;
+  bool SplitPot = false;
   string Name;
   string Winner;
   hand Hand;
@@ -29,12 +29,14 @@ public:
 
 class ClientPackage {
 public:
-  bool HeartBeat;
-  bool NewGame;
-  bool Leave;
+  ClientPackage() = default;
+
+  bool HeartBeat = false;
+  bool NextStep = false;
+  bool Leave = false;
   string Name;
   ClientPackage(bool hb, bool ng, bool l, string n):
-    HeartBeat(hb), NewGame(ng), Leave(l), Name(std::move(n)){}
+      HeartBeat(hb), NextStep(ng), Leave(l), Name(std::move(n)){}
   friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
   friend std::istream &operator>>(std::istream &in, ClientPackage &s);
 };

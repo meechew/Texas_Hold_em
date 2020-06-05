@@ -66,28 +66,32 @@ typedef boost::array<Player,5> Players;
 
 class Table {
 private:
+  int Stage = 0;
   Game *TableGame = nullptr;
   Players HostPlayers;
   PlayerFinals FinalHands;
+  boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
+  std::shared_ptr<boost::thread> HeartBeatThread;
+
+
   static ScoreBoard Tabulate(const cards&);
   int NewPlayer(const boost::container::string& name);
 
   [[noreturn]] void StartHeartBeat();
   boost::thread TheadStarter();
-  boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
-  std::shared_ptr<boost::thread> ServerThread;
+  void Deal();
+  cards Flop();
+  card Turn();
+  card River();
 
 public:
   cards CommonCards;
   Table();
   int IncomingPlayer(const SeatPtr& Seat, Update UpDt);
   void PlayerLeave(SeatPtr);
-  ServerPackage IncomingUpdate(const SeatPtr &Seat, Update UpDt);
+  void IncomingUpdate(const SeatPtr &Seat, Update UpDt);
   void GameStart();
-  void Deal();
-  cards Flop();
-  card Turn();
-  card River();
+  void Step();
   Player* CheckForWinner();
   ServerPackage *Package(PlayerPtr p, bool hb, bool wn, bool sp);
 };
@@ -108,8 +112,8 @@ private:
   Table& Tbl;
   Update ReadUpdate;
   UpdateQueue WriteUpdate;
-  enum {max_length = 1024};
-  char Data[max_length];
+  //enum {max_length = 1024};
+  //char Data[max_length];
   void DoReadHeader();
   void DoReadBody();
   void DoWrite();

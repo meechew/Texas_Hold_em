@@ -117,13 +117,16 @@ std::istream &operator>>(std::istream &in, ServerPackage &s) {
   }
 
   delete c;
+  return in;
 }
 
 std::ostream &operator<<(std::ostream &out, const ClientPackage &s) {
   out << R"({ "HeartBeat" : )" << s.HeartBeat << ','
-      << R"( "NewGame" : )" << s.NewGame << ','
+      << R"( "NextStep" : )" << s.NextStep << ','
       << R"( "Leave" : )" << s.Leave << ','
       << R"( "NAME" : )" << s.Name << '}';
+
+  return out;
 }
 
 std::istream &operator>>(std::istream &in, ClientPackage &s) {
@@ -137,10 +140,10 @@ std::istream &operator>>(std::istream &in, ClientPackage &s) {
   in.ignore();
   in.ignore(100,'"');
   in.get(c,100,'"');
-  assert(strcmp("NewGame",c));
+  assert(strcmp("NextStep",c));
   in.ignore(100,'"');
   in.get(*c);
-  s.NewGame = atoi(c);
+  s.NextStep = atoi(c);
   in.ignore();
   in.ignore(100,'"');
   in.get(c,100,'"');
@@ -156,4 +159,5 @@ std::istream &operator>>(std::istream &in, ClientPackage &s) {
   in.get(c,100,'"');
   s.Name = c;
   delete c;
+  return in;
 }
