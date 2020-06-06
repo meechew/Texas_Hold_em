@@ -75,6 +75,6 @@ add_executable(TexasServer
   Package.cpp)
 
 target_link_libraries(
-  Server
+  TexasServer
   Boost::thread
   Boost::chrono)
