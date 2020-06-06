@@ -127,16 +127,16 @@ int main(int argc, char* argv[])
 {
   try
   {
-    if (argc != 3)
+    if (argc != 4)
     {
-      std::cerr << "Usage: chat_client <host> <port>\n";
+      std::cerr << "Usage: TexasClient <player-name> <host> <port>\n";
       return 1;
     }
 
     boost::asio::io_context io_context;
 
     tcp::resolver resolver(io_context);
-    auto endpoints = resolver.resolve(argv[1], argv[2]);
+    auto endpoints = resolver.resolve(argv[2], argv[3]);
     chat_client c(io_context, endpoints);
 
     std::thread t([&io_context](){ io_context.run(); });
@@ -151,15 +151,21 @@ int main(int argc, char* argv[])
     msg.EncodeHeader();
     c.write(msg);
 
-    char line[Update::MaxBodyLength + 1];
-    while (std::cin.getline(line, Update::MaxBodyLength + 1))
-    {
 
-      msg.MkBodyLength(std::strlen(line));
-      std::memcpy(msg.Body(), line, msg.RetBodyLength());
-      msg.EncodeHeader();
+    while (true) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::cerr << "<-SENDING-> ";
       c.write(msg);
     }
+    // char line[Update::MaxBodyLength + 1];
+    // while (std::cin.getline(line, Update::MaxBodyLength + 1))
+    // {
+
+    //   msg.MkBodyLength(std::strlen(line));
+    //   std::memcpy(msg.Body(), line, msg.RetBodyLength());
+    //   msg.EncodeHeader();
+    //   c.write(msg);
+    // }
 
     c.close();
     t.join();
