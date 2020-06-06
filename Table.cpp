@@ -19,7 +19,7 @@ boost::thread Table::TheadStarter() {
 }
 
 [[noreturn]] void Table::StartHeartBeat() {
-  std::cout << "--STARTING SERVER--\n";
+  std::cout << "--STARTING HEART BEAT--\n";
 
   Update UpDt;
   std::stringstream StringBuff;

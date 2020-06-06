@@ -8,8 +8,6 @@
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-//#include <list>
-//#include <set>
 #include <memory>
 #include <utility>
 #include <boost/asio.hpp>

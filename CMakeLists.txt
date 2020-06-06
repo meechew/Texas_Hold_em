@@ -58,6 +58,25 @@ target_link_libraries(
         #Client.cpp
         #Update.hpp)
 
-#add_executable(Server
-        #Server.cpp
-        #Update.hpp)
+add_executable(Server
+        main.cpp
+        Deck.hpp
+        Deck.cpp
+        RandomEngine.cpp
+        RandomEngine.hpp
+        FaceValues.hpp
+        Table.cpp
+        Game.cpp
+        Game.hpp
+        Player.cpp
+        Player.hpp
+        NetworkController.cpp
+        NetworkController.hpp
+        Package.hpp
+        Package.cpp)
+
+target_link_libraries(
+        Server
+        Boost::thread
+        Boost::chrono
+)

@@ -14,6 +14,8 @@ void Session::Start() {
                   ReadUpdate.RetBodyLength()),
               [this, self](boost::system::error_code ErrorCode, std::size_t) {
                 if (!ErrorCode) {
+                  std::cout << "--New Connection--\n"
+                            << ReadUpdate.Body() << std::endl;
                   Tbl.IncomingPlayer(self, ReadUpdate);
                 }});
         }
