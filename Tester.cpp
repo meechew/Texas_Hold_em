@@ -49,9 +49,9 @@ int main() {
 
 
   Table T_Table;
-  T_Table.Deal();
-  T_Table.Flop();
-  T_Table.Turn();
-  T_Table.River();
+  T_Table.Step();
+  T_Table.Step();
+  T_Table.Step();
+  T_Table.Step();
   std::cout << "\nPackaged: \n" << *T_Table.Package(0, false, false, false) << '\n';
 }
