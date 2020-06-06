@@ -6,19 +6,11 @@
 void Session::Start() {
   auto self(shared_from_this());
   boost::asio::async_read(Skt,
-      boost::asio::buffer(ReadUpdate.data(), Update::HeaderLength),
-      [this, self](boost::system::error_code ErrorCode, std::size_t) {
-        if (!ErrorCode && ReadUpdate.MakeHeader()) {
-          boost::asio::async_read(Skt,
-              boost::asio::buffer(ReadUpdate.Body(),
-                  ReadUpdate.RetBodyLength()),
-              [this, self](boost::system::error_code ErrorCode, std::size_t) {
-                if (!ErrorCode) {
-                  std::cout << "--New Connection--\n"
-                            << ReadUpdate.Body() << std::endl;
-                  Tbl.IncomingPlayer(self, ReadUpdate);
-                }});
-        }
+    boost::asio::buffer(ReadUpdate.data(), Update::MaxBodyLength),
+    [this, self](boost::system::error_code ErrorCode, std::size_t) {
+      std::cerr << "--New Connection--\n"
+                << ReadUpdate.Body() << std::endl;
+      Tbl.IncomingPlayer(self, ReadUpdate);
   });
   DoReadHeader();
 }
@@ -84,7 +76,7 @@ void Session::DoWrite() {
 void NetworkController::DoAccept() {
   Acceptor.async_accept(
 			[this](boost::system::error_code ErrorCode, tcp::socket Socket) {
-			  if (ErrorCode) {
+			  if (!ErrorCode) {
 			    std::make_shared<Session>(std::move(Socket), Tbl)->Start();
 			  }
 			  DoAccept();

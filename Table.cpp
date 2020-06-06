@@ -57,6 +57,8 @@ int Table::IncomingPlayer(const SeatPtr& Seat, Update UpDt) {
   boost::interprocess::bufferstream BuffersStream(UpDt.Body(),UpDt.RetBodyLength());
   ServerPackage Pack;
   int pos;
+  std::cerr << UpDt.RetData();
+  boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
   BuffersStream >> Pack;
   pos = NewPlayer(Pack.Name);
   if (pos < 0)
@@ -68,7 +70,8 @@ int Table::IncomingPlayer(const SeatPtr& Seat, Update UpDt) {
 }
 
 void Table::PlayerLeave(SeatPtr Seat) {
-  SeatedPlayers[Seat]->Fold();
+  if (SeatedPlayers[Seat])
+    SeatedPlayers[Seat]->Fold();
   SeatedPlayers.erase(Seat);
 }
 

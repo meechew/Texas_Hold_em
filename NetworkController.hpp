@@ -22,7 +22,9 @@
 
 using boost::asio::ip::tcp;
 
+typedef std::shared_ptr<Player> PlayerPtr;
 typedef std::deque<Update> UpdateQueue;
+typedef boost::array<Player,5> Players;
 
 class Seat {
 public:
@@ -50,8 +52,6 @@ struct ScoreBoard {
                                                                                  ThreeKind(ThreeKind), TwoPair(TwoPair), OnePair(OnePair) {}
 };
 
-typedef std::shared_ptr<Player> PlayerPtr;
-
 struct Finals {
   PlayerPtr player;
   cards FinalHand;
@@ -59,7 +59,6 @@ struct Finals {
 };
 
 typedef boost::array<Finals,5> PlayerFinals;
-typedef boost::array<Player,5> Players;
 
 
 class Table {
@@ -109,9 +108,9 @@ private:
   tcp::socket Skt;
   Table& Tbl;
   Update ReadUpdate;
+  bool Joined;
+  UpdateQueue IncomingQueue;
   UpdateQueue WriteUpdate;
-  //enum {max_length = 1024};
-  //char Data[max_length];
   void DoReadHeader();
   void DoReadBody();
   void DoWrite();

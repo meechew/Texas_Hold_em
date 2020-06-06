@@ -124,7 +124,7 @@ std::ostream &operator<<(std::ostream &out, const ClientPackage &s) {
   out << R"({ "HeartBeat" : )" << s.HeartBeat << ','
       << R"( "NextStep" : )" << s.NextStep << ','
       << R"( "Leave" : )" << s.Leave << ','
-      << R"( "NAME" : )" << s.Name << '}';
+      << R"( "Name" : )" << s.Name << '}';
 
   return out;
 }
@@ -133,28 +133,28 @@ std::istream &operator>>(std::istream &in, ClientPackage &s) {
   char *c = new char;
   in.ignore(100,'"');
   in.get(c,100,'"');
-  assert(strcmp("HeartBeat",c));
+  assert(!strcmp("HeartBeat",c));
   in.ignore(100,'"');
   in.get(*c);
   s.HeartBeat = atoi(c);
   in.ignore();
   in.ignore(100,'"');
   in.get(c,100,'"');
-  assert(strcmp("NextStep",c));
+  assert(!strcmp("NextStep",c));
   in.ignore(100,'"');
   in.get(*c);
   s.NextStep = atoi(c);
   in.ignore();
   in.ignore(100,'"');
   in.get(c,100,'"');
-  assert(strcmp("Leave",c));
+  assert(!strcmp("Leave",c));
   in.ignore(100,'"');
   in.get(*c);
   s.Leave = atoi(c);
   in.ignore();
   in.ignore(100,'"');
   in.get(c,100,'"');
-  assert(strcmp("Name",c));
+  assert(!strcmp("Name",c));
   in.ignore(100,'"');
   in.get(c,100,'"');
   s.Name = c;
