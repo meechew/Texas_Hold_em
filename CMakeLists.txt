@@ -44,8 +44,7 @@ add_executable(Tester
         RandomEngine.cpp
         RandomEngine.hpp
         Package.hpp
-        Package.cpp
-        Client.cpp)
+        Package.cpp)
 
 include_directories(${Boost_INCLUDE_DIR})
 target_link_libraries(
