@@ -55,7 +55,9 @@ target_link_libraries(
 add_executable(TexasClient
   FaceValues.hpp
   Client.cpp
-  Update.hpp)
+  Update.hpp
+  Package.cpp
+  Package.hpp)
 
 add_executable(TexasServer
   main.cpp
