@@ -31,91 +31,96 @@ std::ostream &operator<<(std::ostream &out, const ServerPackage& s) {
 
 std::istream &operator>>(std::istream &in, ServerPackage &s) {
   char *c = new char;
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("HeartBeat", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.HeartBeat = atoi(c);
-  in.ignore();
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("WinnerNotice", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.WinnerNotice = atoi(c);
-  in.ignore();
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("SplitPot", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.SplitPot = atoi(c);
-  in.ignore();
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Name", c));
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  s.Name = c;
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Winner", c));
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  s.Winner = c;
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Hand", c));
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("First", c));
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Rank", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.Hand.first.rank = atoi(c);
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Suit", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.Hand.first.suit = atoi(c);
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Second", c));
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Rank", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.Hand.second.rank = atoi(c);
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("Suit", c));
-  in.ignore(100, '"');
-  in.get(*c);
-  s.Hand.second.suit = atoi(c);
-  in.ignore(100, '"');
-  in.get(c, 100, '"');
-  assert(strcmp("CommonCards", c));
+  try {
+    in.ignore(100, '{');
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("HeartBeat", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.HeartBeat = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("WinnerNotice", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.WinnerNotice = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("SplitPot", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.SplitPot = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Name", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    s.Name = c;
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Winner", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    s.Winner = c;
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Hand", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("First", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Rank", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.Hand.first.rank = atoi(c);
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Suit", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.Hand.first.suit = atoi(c);
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Second", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Rank", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.Hand.second.rank = atoi(c);
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Suit", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(*c);
+    s.Hand.second.suit = atoi(c);
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("CommonCards", c)) {throw  std::domain_error("Not valid package format");}
 
-  for (int k = 0; k < 5; ++k) {
-    in.ignore(100, '"');
-    in.get(c, 100, '"');
-    assert(strcmp("Rank", c));
-    in.ignore(100, '"');
-    in.get(*c);
-    s.Tbl[k].rank = atoi(c);
-    in.ignore(100, '"');
-    in.get(c, 100, '"');
-    assert(strcmp("Suit", c));
-    in.ignore(100, '"');
-    in.get(*c);
-    s.Tbl[k].suit = atoi(c);
+    for (int k = 0; k < 5; ++k) {
+      in.ignore(100, '"');
+      in.get(c, 100, '"');
+      if (strcmp("Rank", c)) {throw  std::domain_error("Not valid package format");}
+      in.ignore(100, '"');
+      in.get(*c);
+      s.Tbl[k].rank = atoi(c);
+      in.ignore(100, '"');
+      in.get(c, 100, '"');
+      if (strcmp("Suit", c)) {throw  std::domain_error("Not valid package format");}
+      in.ignore(100, '"');
+      in.get(*c);
+      s.Tbl[k].suit = atoi(c);
+    }
+  } catch (std::domain_error& e) {
+    delete c;
+    throw e;
   }
-
   delete c;
   return in;
 }
@@ -131,33 +136,38 @@ std::ostream &operator<<(std::ostream &out, const ClientPackage &s) {
 
 std::istream &operator>>(std::istream &in, ClientPackage &s) {
   char *c = new char;
-  in.ignore(100,'"');
-  in.get(c,100,'"');
-  assert(!strcmp("HeartBeat",c));
-  in.ignore(100,'"');
-  in.get(*c);
-  s.HeartBeat = atoi(c);
-  in.ignore();
-  in.ignore(100,'"');
-  in.get(c,100,'"');
-  assert(!strcmp("NextStep",c));
-  in.ignore(100,'"');
-  in.get(*c);
-  s.NextStep = atoi(c);
-  in.ignore();
-  in.ignore(100,'"');
-  in.get(c,100,'"');
-  assert(!strcmp("Leave",c));
-  in.ignore(100,'"');
-  in.get(*c);
-  s.Leave = atoi(c);
-  in.ignore();
-  in.ignore(100,'"');
-  in.get(c,100,'"');
-  assert(!strcmp("Name",c));
-  in.ignore(100,'"');
-  in.get(c,100,'"');
-  s.Name = c;
+  try {
+    in.ignore(100, '{');
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("HeartBeat", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    s.HeartBeat = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("NextStep", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    s.NextStep = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Leave", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    s.Leave = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Name", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    s.Name = c;
+  } catch (std::domain_error& e) {
+    std::cerr << e.what() << " package dropped\n";
+  }
   delete c;
   return in;
 }

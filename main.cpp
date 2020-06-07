@@ -1,17 +1,16 @@
 #include <iostream>
+#include <include/asio/executor.hpp>
 #include "NetworkController.hpp"
 
 int main() {
   try
   {
-
-
     boost::asio::io_context Context;
-    tcp::endpoint endpoint(tcp::v4(), 5000);
+    tcp::endpoint Endpoint(tcp::v4(), 5000);
 
-    NetworkController Server(Context, endpoint);
+    Table ServerGame(Context, Endpoint);
 
-    Context.run();
+
   }
   catch (std::exception& e)
   {

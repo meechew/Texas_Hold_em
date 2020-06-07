@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <stdexcept>
 #include <boost/asio.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <boost/array.hpp>
@@ -68,14 +69,16 @@ private:
   Players HostPlayers;
   PlayerFinals FinalHands;
   boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
-  std::shared_ptr<boost::thread> HeartBeatThread;
-
+  boost::asio::io_context& ioContext;
+  tcp::socket Socket;
+  UpdateQueue IncomingQueue;
+  std::shared_ptr<boost::thread> ServerThread;
+  enum {MaxMsg = 100};
 
   static ScoreBoard Tabulate(const cards&);
   int NewPlayer(const boost::container::string& name);
 
   [[noreturn]] void StartHeartBeat();
-  boost::thread TheadStarter();
   void Deal();
   cards Flop();
   card Turn();
@@ -83,14 +86,20 @@ private:
 
 public:
   cards CommonCards;
-  Table();
+  Table() = default;
+  Table(boost::asio::io_context &Context, tcp::endpoint Endpoint);
+  void AddThread(std::shared_ptr<boost::thread> ThrPtr) {
+    ServerThread = std::move(ThrPtr);
+  }
   int IncomingPlayer(const SeatPtr& Seat, Update UpDt);
   void PlayerLeave(SeatPtr);
-  void IncomingUpdate(const SeatPtr &Seat, Update UpDt);
+  void IncomingUpdate(Update UpDt);
+  void ProssesUpdates();
   void GameStart();
   void Step();
   Player* CheckForWinner();
   ServerPackage *Package(PlayerPtr p, bool hb, bool wn, bool sp);
+
 };
 
 class Session:
@@ -109,7 +118,6 @@ private:
   Table& Tbl;
   Update ReadUpdate;
   bool Joined;
-  UpdateQueue IncomingQueue;
   UpdateQueue WriteUpdate;
   void DoReadHeader();
   void DoReadBody();
@@ -119,15 +127,15 @@ private:
 class NetworkController {
 public:
   NetworkController(boost::asio::io_context& Context,
-		    const tcp::endpoint& Endpoint):
-    Acceptor(Context, Endpoint) {
+		    const tcp::endpoint& Endpoint, Table* TblPtr):
+    Acceptor(Context, Endpoint), Tbl(TblPtr){
     DoAccept();
   }
 
 private:
-  void DoAccept();
   tcp::acceptor Acceptor;
-  Table Tbl;
+  void DoAccept();
+  Table* Tbl;
 };
 
 

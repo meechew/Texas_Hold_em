@@ -6,11 +6,11 @@
 void Session::Start() {
   auto self(shared_from_this());
   boost::asio::async_read(Skt,
-    boost::asio::buffer(ReadUpdate.data(), Update::MaxBodyLength),
+    boost::asio::buffer(ReadUpdate.RetData(), Update::MaxBodyLength),
     [this, self](boost::system::error_code ErrorCode, std::size_t) {
       std::cerr << "--New Connection--\n"
-                << ReadUpdate.Body() << std::endl;
-      Tbl.IncomingPlayer(self, ReadUpdate);
+                << ReadUpdate.RetData() << std::endl;
+      //Tbl.IncomingPlayer(self, ReadUpdate);
   });
   DoReadHeader();
 }
@@ -25,7 +25,7 @@ void Session::Signal(const Update& Upd) {
 void Session::DoReadHeader() {
   auto self(shared_from_this());
   boost::asio::async_read(Skt,
-			  boost::asio::buffer(ReadUpdate.data(), Update::HeaderLength),
+			  boost::asio::buffer(ReadUpdate.RetData(), Update::HeaderLength),
 			  [this, self](boost::system::error_code ErrorCode, std::size_t) {
 			    if (!ErrorCode && ReadUpdate.MakeHeader()) {
 			      DoReadBody();
@@ -44,7 +44,7 @@ void Session::DoReadBody() {
           ReadUpdate.RetBodyLength()),
         [this, self](boost::system::error_code ErrorCode, std::size_t) {
           if (!ErrorCode) {
-            Tbl.IncomingUpdate(self, ReadUpdate);
+            Tbl.IncomingUpdate(ReadUpdate);
             DoReadHeader();
           }
           else {
@@ -56,8 +56,8 @@ void Session::DoReadBody() {
 void Session::DoWrite() {
   auto self(shared_from_this());
   boost::asio::async_write(Skt,
-			   boost::asio::buffer(WriteUpdate.front().data(),
-					       WriteUpdate.front().length()),
+			   boost::asio::buffer(WriteUpdate.front().RetData(),
+                             WriteUpdate.front().Length()),
 			   [this, self](boost::system::error_code ErrorCode,
 					  std::size_t)
                            {
@@ -77,7 +77,7 @@ void NetworkController::DoAccept() {
   Acceptor.async_accept(
 			[this](boost::system::error_code ErrorCode, tcp::socket Socket) {
 			  if (!ErrorCode) {
-			    std::make_shared<Session>(std::move(Socket), Tbl)->Start();
+			    std::make_shared<Session>(std::move(Socket), *Tbl)->Start();
 			  }
 			  DoAccept();
 			});

@@ -27,12 +27,12 @@ public:
     return Data;
   }
 
-  char* data()
+  char* RetData()
   {
     return Data;
   }
 
-  std::size_t length() const
+  std::size_t Length() const
   {
     return HeaderLength + BodyLength;
   }
