@@ -1,7 +1,7 @@
 // Created by CBunt on 31 May 2020.
 //
 
-#include <local/include/boost/interprocess/streams/bufferstream.hpp>
+#include <boost/interprocess/streams/bufferstream.hpp>
 #include "Package.hpp"
 
 ServerPackage::ServerPackage(char *) {
@@ -31,6 +31,24 @@ std::ostream &operator<<(std::ostream &out, const ServerPackage& s) {
   }
 
   return out;
+}
+
+string ServerPackage::Serial() {
+  string ret;
+  ret = R"({ "HeartBeat" : )" + HeartBeat + ',';
+  ret += R"( "WinnerNotice" : )" + WinnerNotice + ',';
+  ret += R"( "Name" : ")" + Name + "\",";
+  ret += R"( "Winner" : ")" + Winner + "\",";
+  ret += R"( "Hand" : { "First" : {)";
+  ret += R"( "Rank" : )" + Hand.first.rank + ',';
+  ret += R"( "Suit" : )" + Hand.first.suit;
+  ret += "},";
+  ret += R"( "Second" : {)";
+  ret += R"( "Rank" : )" + Hand.second.rank + ',';
+  ret += R"( "Suit" : )" + Hand.second.suit;
+  ret += "},";
+  ret += R"( "CommonCards" : [)";
+  return ret;
 }
 
 std::istream &operator>>(std::istream &in, ServerPackage &s) {
@@ -130,8 +148,6 @@ std::istream &operator>>(std::istream &in, ServerPackage &s) {
 }
 
 ClientPackage::ClientPackage(char* str) {
-
-
   auto in = boost::interprocess::ibufferstream(str, 512);
   char *c = new char;
   try {
@@ -160,6 +176,7 @@ ClientPackage::ClientPackage(char* str) {
     in.ignore(100, '"');
     in.get(c, 100, '"');
     if (strcmp("Name", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore();
     in.ignore(100, '"');
     in.get(c, 100, '"');
     Name = c;

@@ -47,8 +47,10 @@ int main() {
   std::cout << "\nPackaged: \n" << Pack << std::endl;
 
 
+  boost::asio::io_context Context;
+  tcp::endpoint Endpoint(tcp::v4(), 5000);
 
-  Table T_Table;
+  Table T_Table(Context, Endpoint);
   T_Table.Step();
   T_Table.Step();
   T_Table.Step();

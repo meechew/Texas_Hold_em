@@ -26,19 +26,25 @@ Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
   std::cout << "--STARTING HEART BEAT--\n";
 
   Update UpDt;
+  string Pack;
   std::stringstream StringBuff;
+  ServerPackage* cpack;
+
   for(;;) {
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     ProssesUpdates();
     for(const auto& p : SeatedPlayers) {
-      StringBuff << Package(p.second, true, false, false);
-      UpDt.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
-      std::memcpy(UpDt.Body(),StringBuff.str().c_str(), UpDt.RetBodyLength() );
+      //cpack = Package(p.second, true, false, false);
+      //StringBuff << cpack;
+      Pack = Package(p.second, true, false, false)->Serial();
+      UpDt.MkBodyLength(std::strlen(Pack.c_str())+1);
+      std::memcpy(UpDt.Body(),Pack.c_str(), UpDt.RetBodyLength() );
       UpDt.EncodeHeader();
       p.first->CountTimer();
       p.first->Signal(UpDt);
     }
   }
+  delete cpack;
 }
 
 int Table::NewPlayer(const boost::container::string& name) {
