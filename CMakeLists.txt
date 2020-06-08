@@ -59,6 +59,11 @@ add_executable(TexasClient
   Package.cpp
   Package.hpp)
 
+target_lin_libraries(
+  TexasClient
+  Boost::thread
+  Boost::chrono)
+
 add_executable(TexasServer
   main.cpp
   Deck.hpp
