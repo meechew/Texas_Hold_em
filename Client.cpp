@@ -61,8 +61,8 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.RetData(), Update::HeaderLength),
-                            [this](boost::system::error_code ec, std::size_t /*Length*/)
+                            boost::asio::buffer(read_msg_.data(), Update::HeaderLength),
+                            [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec && read_msg_.MakeHeader())
                               {
@@ -79,7 +79,7 @@ private:
   {
     boost::asio::async_read(socket_,
                             boost::asio::buffer(read_msg_.Body(), read_msg_.RetBodyLength()),
-                            [this](boost::system::error_code ec, std::size_t /*Length*/)
+                            [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec)
                               {
@@ -97,9 +97,9 @@ private:
   void do_write()
   {
     boost::asio::async_write(socket_,
-                             boost::asio::buffer(write_msgs_.front().RetData(),
-                                                 write_msgs_.front().Length()),
-                             [this](boost::system::error_code ec, std::size_t /*Length*/)
+                             boost::asio::buffer(write_msgs_.front().data(),
+                                                 write_msgs_.front().length()),
+                             [this](boost::system::error_code ec, std::size_t /*length*/)
                              {
                                if (!ec)
                                {
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage cpack(false, false, false, "Client");
+    ClientPackage cpack(true, false, false, "Client");
     Update msg;
     std::stringstream StringBuff;
     StringBuff << cpack;
@@ -150,6 +150,9 @@ int main(int argc, char* argv[])
     std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
     msg.EncodeHeader();
     c.write(msg);
+
+
+    std::cout << cpack << std::endl;
 
 
     while (true) {
