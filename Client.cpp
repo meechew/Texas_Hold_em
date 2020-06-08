@@ -141,8 +141,8 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage lfPack(true, false, false, "Client");
-    ClientPackage sPack(false, true, false, "Client");
+    ClientPackage lfPack(true, false, false, argv[1]);
+    ClientPackage sPack(false, true, false, argv[1]);
     Update msg;
     std::stringstream StringBuff;
     while (true) {
