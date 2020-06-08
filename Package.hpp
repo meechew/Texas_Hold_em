@@ -11,7 +11,7 @@
 class ServerPackage {
 public:
   ServerPackage() = default;
-
+  ServerPackage(char* UpDt);
   bool HeartBeat = false;
   bool WinnerNotice = false;
   bool SplitPot = false;
@@ -30,7 +30,7 @@ public:
 class ClientPackage {
 public:
   ClientPackage() = default;
-
+  ClientPackage(char*);
   bool HeartBeat = false;
   bool NextStep = false;
   bool Leave = false;

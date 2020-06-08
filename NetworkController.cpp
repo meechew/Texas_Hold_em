@@ -9,8 +9,9 @@ void Session::Start() {
     boost::asio::buffer(ReadUpdate.RetData(), Update::MaxBodyLength),
     [this, self](boost::system::error_code ErrorCode, std::size_t) {
       std::cerr << "--New Connection--\n"
-                << ReadUpdate.RetData() << std::endl;
-      //Tbl.IncomingPlayer(self, ReadUpdate);
+                /* << ReadUpdate.Body()*/ << std::endl;
+      if (Tbl.IncomingPlayer(self, ReadUpdate) > 0)
+        Joined = true;
   });
   DoReadHeader();
 }
@@ -44,7 +45,8 @@ void Session::DoReadBody() {
           ReadUpdate.RetBodyLength()),
         [this, self](boost::system::error_code ErrorCode, std::size_t) {
           if (!ErrorCode) {
-            Tbl.IncomingUpdate(ReadUpdate);
+            if (Joined)
+              Tbl.IncomingUpdate(ReadUpdate);
             DoReadHeader();
           }
           else {

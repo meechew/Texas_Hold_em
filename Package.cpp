@@ -1,8 +1,12 @@
 // Created by CBunt on 31 May 2020.
 //
 
+#include <local/include/boost/interprocess/streams/bufferstream.hpp>
 #include "Package.hpp"
 
+ServerPackage::ServerPackage(char *) {
+
+}
 
 std::ostream &operator<<(std::ostream &out, const ServerPackage& s) {
 
@@ -125,11 +129,51 @@ std::istream &operator>>(std::istream &in, ServerPackage &s) {
   return in;
 }
 
+ClientPackage::ClientPackage(char* str) {
+
+
+  auto in = boost::interprocess::ibufferstream(str, 512);
+  char *c = new char;
+  try {
+    in.ignore(100, '{');
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("HeartBeat", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    HeartBeat = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("NextStep", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    NextStep = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Leave", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
+    in.get(c, 100, ',');
+    Leave = atoi(c);
+    in.ignore();
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    if (strcmp("Name", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, '"');
+    in.get(c, 100, '"');
+    Name = c;
+  } catch (std::domain_error& e) {
+    std::cerr << e.what() << " package dropped\n";
+  }
+  delete c;
+}
+
 std::ostream &operator<<(std::ostream &out, const ClientPackage &s) {
   out << R"({ "HeartBeat" : )" << s.HeartBeat << ','
       << R"( "NextStep" : )" << s.NextStep << ','
       << R"( "Leave" : )" << s.Leave << ','
-      << R"( "Name" : )" << s.Name << '}';
+      << R"( "Name" : ")" << s.Name << '\"' << '}';
 
   return out;
 }
@@ -171,3 +215,4 @@ std::istream &operator>>(std::istream &in, ClientPackage &s) {
   delete c;
   return in;
 }
+

@@ -46,7 +46,7 @@ int Table::NewPlayer(const boost::container::string& name) {
 
   for (int k = 0; k < 5; ++k) {
     Fmt = boost::format("Player%1%") %k;
-    if (Fmt.str().c_str() != HostPlayers[k].Who()) {
+    if (Fmt.str().c_str() != HostPlayers[k].Who().c_str()) {
       HostPlayers[k].AddPlayer(name);
       std::cout << "--Player: " << name << " Added--\n";
       return k;
@@ -58,11 +58,10 @@ int Table::NewPlayer(const boost::container::string& name) {
 
 // Take a pointer to a socket and the first message from that socket
 // Pulls the Name out of it and assigning association with player pointer.
-int Table::IncomingPlayer(const SeatPtr& Seat, Update UpDt) {
-  boost::interprocess::bufferstream BuffersStream(UpDt.Body(),UpDt.RetBodyLength());
-  ClientPackage Pack;
+int Table::IncomingPlayer(const SeatPtr& Seat, Update& UpDt) {
+  ClientPackage Pack(UpDt.Body());
   int pos;
-  BuffersStream >> Pack;
+  //in >> Pack;
 
   pos = NewPlayer(Pack.Name);
   if (pos < 0)

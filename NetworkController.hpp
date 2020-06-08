@@ -91,7 +91,7 @@ public:
   void AddThread(std::shared_ptr<boost::thread> ThrPtr) {
     ServerThread = std::move(ThrPtr);
   }
-  int IncomingPlayer(const SeatPtr& Seat, Update UpDt);
+  int IncomingPlayer(const SeatPtr& Seat, Update& UpDt);
   void PlayerLeave(SeatPtr);
   void IncomingUpdate(Update UpDt);
   void ProssesUpdates();
@@ -117,7 +117,7 @@ private:
   tcp::socket Skt;
   Table& Tbl;
   Update ReadUpdate;
-  bool Joined;
+  bool Joined = false;
   UpdateQueue WriteUpdate;
   void DoReadHeader();
   void DoReadBody();
