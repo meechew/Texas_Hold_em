@@ -59,7 +59,7 @@ add_executable(TexasClient
   Package.cpp
   Package.hpp)
 
-target_lin_libraries(
+target_link_libraries(
   TexasClient
   Boost::thread
   Boost::chrono)
