@@ -141,35 +141,32 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage cpack(true, false, false, "Client");
+    ClientPackage lfPack(true, false, false, "Client");
+    ClientPackage sPack(false, true, false, "Client");
     Update msg;
     std::stringstream StringBuff;
-    StringBuff << cpack;
-
-    msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
-    std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
-    msg.EncodeHeader();
-    c.write(msg);
-
-
-    std::cout << cpack << std::endl;
-
-
     while (true) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-      std::cerr << "<-SENDING-> ";
+      StringBuff << lfPack;
+
+      msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
+      std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
+      msg.EncodeHeader();
+      std::cerr << "<-SENDING LF-> "; 
       c.write(msg);
+
+      StringBuff << sPack;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      
+      msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
+      std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
+      msg.EncodeHeader();
+      std::cerr << "<-SENDING STEP-> "; 
+
+      c.write(msg);
+      
+      std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     }
-    // char line[Update::MaxBodyLength + 1];
-    // while (std::cin.getline(line, Update::MaxBodyLength + 1))
-    // {
-
-    //   msg.MkBodyLength(std::strlen(line));
-    //   std::memcpy(msg.Body(), line, msg.RetBodyLength());
-    //   msg.EncodeHeader();
-    //   c.write(msg);
-    // }
-
+    
     c.close();
     t.join();
   }
