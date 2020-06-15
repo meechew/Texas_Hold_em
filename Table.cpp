@@ -28,23 +28,19 @@ Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
   Update UpDt;
   string Pack;
   std::stringstream StringBuff;
-  ServerPackage* cpack;
 
   for(;;) {
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     ProssesUpdates();
     for(const auto& p : SeatedPlayers) {
-      //cpack = Package(p.second, true, false, false);
-      //StringBuff << cpack;
-      Pack = Package(p.second, true, false, false)->Serial();
+      Pack = Package(p.right, true, false, false)->Serial();
       UpDt.MkBodyLength(std::strlen(Pack.c_str())+1);
       std::memcpy(UpDt.Body(),Pack.c_str(), UpDt.RetBodyLength() );
       UpDt.EncodeHeader();
-      p.first->CountTimer();
-      p.first->Signal(UpDt);
+      p.left->CountTimer();
+      p.left->Signal(UpDt);
     }
   }
-  delete cpack;
 }
 
 int Table::NewPlayer(const boost::container::string& name) {
@@ -73,44 +69,55 @@ int Table::IncomingPlayer(const SeatPtr& Seat, Update& UpDt) {
   if (pos < 0)
     return pos;
 
-  SeatedPlayers[Seat] = std::make_shared<Player>(HostPlayers[pos]);
+  SeatedPlayers.insert(SocketSeatLink (Seat,
+      std::make_shared<Player>(HostPlayers[pos])));
+
+  dynamic_cast<Session&>(*Seat).Join();
 
   return pos;
 }
 
 void Table::PlayerLeave(SeatPtr Seat) {
-  if (SeatedPlayers[Seat])
-    SeatedPlayers[Seat]->Fold();
-  SeatedPlayers.erase(Seat);
+  if (SeatedPlayers.left.at(Seat))
+    SeatedPlayers.left.at(Seat)->Fold();
+  SeatedPlayers.left.erase(Seat);
 }
 
 void Table::IncomingUpdate(Update UpDt) {
   IncomingQueue.push_back(UpDt);
 }
 
+
+// This can be written more effectively. maybe rewrite to attach the
+// socket to the Player class.
 void Table::ProssesUpdates() {
   std::shared_ptr<Update> UpdatePtr;
-  while(IncomingQueue.size()) {
+  while(!IncomingQueue.empty()) {
     UpdatePtr = std::make_shared<Update>(IncomingQueue.front());
     boost::interprocess::bufferstream BuffersStream(UpdatePtr->Body(),
         UpdatePtr->RetBodyLength());
     ClientPackage Pack;
     BuffersStream >> Pack;
-/*
+
+    PlayerPtr Ptr;
+    for(auto p : HostPlayers)
+      if(p.Who() == Pack.Name)
+        Ptr = std::make_shared<Player>(p);
+
     if (Pack.HeartBeat) {
-      Seat->ResetTimer();
+      SeatedPlayers.right.at(Ptr)->ResetTimer();
       return;
-    }*/
+    }
 
     if (Pack.NextStep) {
       Step();
       return;
     }
-/*
+
     if (Pack.Leave) {
-      PlayerLeave(Seat);
+      PlayerLeave(SeatedPlayers.right.at(Ptr));
       return;
-    }*/
+    }
     IncomingQueue.pop_front();
   }
 }

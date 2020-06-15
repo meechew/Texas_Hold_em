@@ -16,6 +16,7 @@
 #include <boost/array.hpp>
 #include <boost/thread.hpp>
 #include <boost/format.hpp>
+#include <boost/bimap.hpp>
 #include "Player.hpp"
 #include "Update.hpp"
 #include "Game.hpp"
@@ -60,7 +61,7 @@ struct Finals {
 };
 
 typedef boost::array<Finals,5> PlayerFinals;
-
+typedef boost::bimap<SeatPtr, PlayerPtr>::value_type SocketSeatLink;
 
 class Table {
 private:
@@ -68,12 +69,12 @@ private:
   Game *TableGame = nullptr;
   Players HostPlayers;
   PlayerFinals FinalHands;
-  boost::container::map<SeatPtr, PlayerPtr> SeatedPlayers;
+  boost::bimap<SeatPtr, PlayerPtr> SeatedPlayers;
+
   boost::asio::io_context& ioContext;
   tcp::socket Socket;
   UpdateQueue IncomingQueue;
   std::shared_ptr<boost::thread> ServerThread;
-  enum {MaxMsg = 100};
 
   static ScoreBoard Tabulate(const cards&);
   int NewPlayer(const boost::container::string& name);
@@ -110,6 +111,7 @@ public:
     : Skt(std::move(Skt)), Tbl(Tbl) {}
   void Start();
   void Signal (const Update& Upd) override;
+  void Join() {Joined = true;}
   void ResetTimer() override {Timer = 0;}
   void CountTimer() override {++Timer;}
 private:
@@ -122,6 +124,7 @@ private:
   void DoReadHeader();
   void DoReadBody();
   void DoWrite();
+  PlayerPtr PtrToSeatedPlayer;
 };
 
 class NetworkController {
