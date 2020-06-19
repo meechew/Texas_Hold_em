@@ -65,6 +65,7 @@ target_link_libraries(
   Boost::chrono)
 
 add_executable(TexasServer
+  TexasServer.hpp
   main.cpp
   Deck.hpp
   Deck.cpp
