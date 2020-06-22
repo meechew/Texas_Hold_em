@@ -1,7 +1,7 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#include "Player.hpp"
+#include "TexasServer.hpp"
 
 void Player::NewHand(cards Dealt) {
   Hand.first = Dealt.front();
