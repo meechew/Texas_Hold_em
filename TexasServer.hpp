@@ -47,11 +47,26 @@ public:
   Player() = default;
   explicit Player(string n):
       Name(std::move(n)) {}
-  void NewHand(cards Dealt);
-  void AddPlayer(string n);
-  void Fold();
-  string Who();
-  hand Call();
+  void NewHand(cards Dealt) {
+    Hand.first = Dealt.front();
+    Hand.second = Dealt.back();
+  }
+  
+  void AddPlayer(string n) {
+    Name = std::move(n);
+  }
+  
+  void Fold() {
+    Hand = std::make_pair<card,card>(card(0, 0), card(0, 0));
+  }
+  
+  string Who() {
+    return Name;
+  }
+  
+  hand Call() {
+    return Hand;
+  }
 };
 
 

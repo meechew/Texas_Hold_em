@@ -75,10 +75,7 @@ add_executable(TexasServer
   Table.cpp
   Game.cpp
   Game.hpp
-  Player.cpp
-  Player.hpp
   NetworkController.cpp
-  NetworkController.hpp
   Package.hpp
   Package.cpp)
 
