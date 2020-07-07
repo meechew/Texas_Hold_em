@@ -25,9 +25,10 @@
 
 #include "Update.hpp"
 #include "Game.hpp"
-#include "Package.hpp"
 
 using boost::asio::ip::tcp;
+using string = boost::container::string;
+
 
 class Seat {
 public:
@@ -67,6 +68,41 @@ public:
   hand Call() {
     return Hand;
   }
+};
+
+class ServerPackage {
+public:
+  bool HeartBeat = false;
+  bool WinnerNotice = false;
+  bool SplitPot = false;
+  string Name;
+  string Winner;
+  hand Hand;
+  boost::container::vector<card> Tbl;
+  ServerPackage() = default;
+  ServerPackage(char* UpDt);
+  ServerPackage(bool hb, bool wn, bool sp, string n, string w, hand h,
+                boost::container::vector<card> tbl):
+      HeartBeat(hb), WinnerNotice(wn), SplitPot(sp), Name(std::move(n)),
+      Winner(std::move(w)), Hand(std::move(h)), Tbl(std::move(tbl)){}
+  string Serial();
+  friend std::ostream &operator<<(std::ostream &out, const ServerPackage &s);
+  friend std::istream &operator>>(std::istream &in, ServerPackage &s);
+};
+
+class ClientPackage {
+public:
+  bool HeartBeat = false;
+  bool NextStep = false;
+  bool Leave = false;
+  string Name;
+  ClientPackage() = default;
+  ClientPackage(char* UpDt);
+  ClientPackage(bool hb, bool ng, bool l, string n):
+      HeartBeat(hb), NextStep(ng), Leave(l), Name(std::move(n)){}
+  friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
+  friend std::istream &operator>>(std::istream &in, ClientPackage &s);
+  string Serial();
 };
 
 

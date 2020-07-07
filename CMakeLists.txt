@@ -75,9 +75,9 @@ add_executable(TexasServer
   Table.cpp
   Game.cpp
   Game.hpp
-  NetworkController.cpp
-  Package.hpp
-  Package.cpp)
+  Package.cpp
+  Player.cpp
+  NetworkController.cpp)
 
 target_link_libraries(
   TexasServer
