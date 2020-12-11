@@ -163,7 +163,7 @@ public:
   void AddThread(std::shared_ptr<boost::thread> ThrPtr) {
     ServerThread = std::move(ThrPtr);
   }
-  int IncomingPlayer(const SeatPtr& Seat, Update& UpDt);
+  int IncomingPlayer(SeatPtr Seat, Update& UpDt);
   void PlayerLeave(SeatPtr);
   void IncomingUpdate(Update UpDt);
   void ProssesUpdates();

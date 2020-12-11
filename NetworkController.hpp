@@ -61,7 +61,8 @@ struct Finals {
 };
 
 typedef boost::array<Finals,5> PlayerFinals;
-typedef boost::bimap<SeatPtr, PlayerPtr>::value_type SocketSeatLink;
+typedef boost::bimap<SeatPtr, PlayerPtr> SocketSeatLink;
+typedef SocketSeatLink::value_type SocketSeatPair;
 
 class Table {
 private:
@@ -69,8 +70,7 @@ private:
   Game *TableGame = nullptr;
   Players HostPlayers;
   PlayerFinals FinalHands;
-  boost::bimap<SeatPtr, PlayerPtr> SeatedPlayers;
-
+  SocketSeatLink SeatedPlayers;
   boost::asio::io_context& ioContext;
   tcp::socket Socket;
   UpdateQueue IncomingQueue;
@@ -92,7 +92,7 @@ public:
   void AddThread(std::shared_ptr<boost::thread> ThrPtr) {
     ServerThread = std::move(ThrPtr);
   }
-  int IncomingPlayer(const SeatPtr& Seat, Update& UpDt);
+  int IncomingPlayer(SeatPtr Seat, Update& UpDt);
   void PlayerLeave(SeatPtr);
   void IncomingUpdate(Update UpDt);
   void ProssesUpdates();

@@ -60,7 +60,7 @@ int Table::NewPlayer(const boost::container::string& name) {
 
 // Take a pointer to a socket and the first message from that socket
 // Pulls the Name out of it and assigning association with player pointer.
-int Table::IncomingPlayer(const SeatPtr& Seat, Update& UpDt) {
+int Table::IncomingPlayer(SeatPtr Seat, Update& UpDt) {
   ClientPackage Pack(UpDt.Body());
   int pos;
   //in >> Pack;
@@ -69,7 +69,7 @@ int Table::IncomingPlayer(const SeatPtr& Seat, Update& UpDt) {
   if (pos < 0)
     return pos;
 
-  SeatedPlayers.insert(SocketSeatLink (Seat,
+  SeatedPlayers.insert(SocketSeatPair(Seat,
       std::make_shared<Player>(HostPlayers[pos])));
 
   dynamic_cast<Session&>(*Seat).Join();
