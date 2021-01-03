@@ -166,7 +166,7 @@ public:
   int IncomingPlayer(SeatPtr Seat, Update& UpDt);
   void PlayerLeave(SeatPtr);
   void IncomingUpdate(Update UpDt);
-  void ProssesUpdates();
+  void ProcessUpdate();
   void GameStart();
   void Step();
   Player* CheckForWinner();

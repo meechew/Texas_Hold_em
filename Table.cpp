@@ -31,7 +31,7 @@ Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
 
   for(;;) {
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
-    ProssesUpdates();
+    ProcessUpdate();
     for(const auto& p : SeatedPlayers) {
       Pack = Package(p.right, true, false, false)->Serial();
       UpDt.MkBodyLength(std::strlen(Pack.c_str())+1);
@@ -90,7 +90,7 @@ void Table::IncomingUpdate(Update UpDt) {
 
 // This can be written more effectively. maybe rewrite to attach the
 // socket to the Player class.
-void Table::ProssesUpdates() {
+void Table::ProcessUpdate() {
   std::shared_ptr<Update> UpdatePtr;
   while(!IncomingQueue.empty()) {
     UpdatePtr = std::make_shared<Update>(IncomingQueue.front());
