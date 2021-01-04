@@ -154,15 +154,15 @@ int main(int argc, char* argv[])
       std::cerr << "<-SENDING LF-> "; 
       c.write(msg);
 
-      StringBuff << sPack;
+      //StringBuff << sPack;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       
       msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
       std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
       msg.EncodeHeader();
-      std::cerr << "<-SENDING STEP-> "; 
+      //std::cerr << "<-SENDING STEP-> ";
 
-      c.write(msg);
+      //c.write(msg);
       
       std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     }
