@@ -9,20 +9,20 @@ find_package(Boost REQUIRED thread chrono)
 
 add_executable(Texas_Hold_em
   main.cpp
-  Deck.hpp
-  Deck.cpp
-  RandomEngine.cpp
-  RandomEngine.hpp
-  FaceValues.hpp
-  Table.cpp
-  Game.cpp
-  Game.hpp
-  Player.cpp
-  Player.hpp
-  NetworkController.cpp
-  NetworkController.hpp
-  Package.hpp
-  Package.cpp)
+        Deck/Deck.hpp
+        Deck/Deck.cpp
+        GameAssets/RandomEngine.cpp
+        GameAssets/RandomEngine.hpp
+        Deck/FaceValues.hpp
+        NetworkAssests/Table.cpp
+        Deck/Game.cpp
+        Deck/Game.hpp
+        Player/Player.cpp
+        Player/Player.hpp
+        NetworkAssests/NetworkController.cpp
+        NetworkAssests/NetworkController.hpp
+        NetworkAssests/Package.hpp
+        NetworkAssests/Package.cpp)
 
 target_link_libraries(
   ${PROJECT_NAME}
@@ -31,20 +31,20 @@ target_link_libraries(
 
 add_executable(Tester
   Tester.cpp
-  Deck.hpp
-  Deck.cpp
-  FaceValues.hpp
-  Table.cpp
-  Game.cpp
-  Game.hpp
-  Player.cpp
-  Player.hpp
-  NetworkController.cpp
-  NetworkController.hpp
-  RandomEngine.cpp
-  RandomEngine.hpp
-  Package.hpp
-  Package.cpp)
+        Deck/Deck.hpp
+        Deck/Deck.cpp
+        Deck/FaceValues.hpp
+        NetworkAssests/Table.cpp
+        Deck/Game.cpp
+        Deck/Game.hpp
+        Player/Player.cpp
+        Player/Player.hpp
+        NetworkAssests/NetworkController.cpp
+        NetworkAssests/NetworkController.hpp
+        GameAssets/RandomEngine.cpp
+        GameAssets/RandomEngine.hpp
+        NetworkAssests/Package.hpp
+        NetworkAssests/Package.cpp)
 
 include_directories(${Boost_INCLUDE_DIR})
 target_link_libraries(
@@ -53,11 +53,11 @@ target_link_libraries(
   Boost::chrono)
 
 add_executable(TexasClient
-  FaceValues.hpp
-  Client.cpp
-  Update.hpp
-  Package.cpp
-  Package.hpp)
+        Deck/FaceValues.hpp
+        NetworkAssests/Client.cpp
+        NetworkAssests/Update.hpp
+        NetworkAssests/Package.cpp
+        NetworkAssests/Package.hpp)
 
 target_link_libraries(
   TexasClient
@@ -65,19 +65,19 @@ target_link_libraries(
   Boost::chrono)
 
 add_executable(TexasServer
-  TexasServer.hpp
+        NetworkAssests/TexasServer.hpp
   main.cpp
-  Deck.hpp
-  Deck.cpp
-  RandomEngine.cpp
-  RandomEngine.hpp
-  FaceValues.hpp
-  Table.cpp
-  Game.cpp
-  Game.hpp
-  Package.cpp
-  Player.cpp
-  NetworkController.cpp)
+        Deck/Deck.hpp
+        Deck/Deck.cpp
+        GameAssets/RandomEngine.cpp
+        GameAssets/RandomEngine.hpp
+        Deck/FaceValues.hpp
+        NetworkAssests/Table.cpp
+        Deck/Game.cpp
+        Deck/Game.hpp
+        NetworkAssests/Package.cpp
+        Player/Player.cpp
+        NetworkAssests/NetworkController.cpp)
 
 target_link_libraries(
   TexasServer

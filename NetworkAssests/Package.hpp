@@ -3,7 +3,7 @@
 
 #ifndef TEXAS_HOLD_EM_PACKAGE_HPP
 #define TEXAS_HOLD_EM_PACKAGE_HPP
-#include "Player.hpp"
+#include "../Player/Player.hpp"
 #include <utility>
 #include <boost/container/vector.hpp>
 #include <cstdio>

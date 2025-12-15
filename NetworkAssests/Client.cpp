@@ -61,7 +61,7 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.RetData(), Update::HeaderLength),
+                            boost::asio::buffer(read_msg_.Header(), Update::HeaderLength),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec && read_msg_.MakeHeader())
@@ -97,7 +97,7 @@ private:
   void do_write()
   {
     boost::asio::async_write(socket_,
-                             boost::asio::buffer(write_msgs_.front().RetData(),
+                             boost::asio::buffer(write_msgs_.front().Header(),
                                                  write_msgs_.front().Length()),
                              [this](boost::system::error_code ec, std::size_t /*length*/)
                              {

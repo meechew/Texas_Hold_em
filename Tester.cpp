@@ -1,11 +1,10 @@
 // Created by CBunt on 16 May 2020.
 //
 
-#include "Deck.hpp"
-#include "Player.hpp"
-#include "FaceValues.hpp"
-#include "Package.hpp"
-#include "NetworkController.hpp"
+#include "Deck/Deck.hpp"
+#include "Deck/FaceValues.hpp"
+#include "NetworkAssests/NetworkController.hpp"
+#include "NetworkAssests/Package.hpp"
 
 int main() {
   Deck T_Deck;
@@ -16,7 +15,7 @@ int main() {
 
   T_Common = T_Deck.Deal(5);
 
-  std::cout << "common cards";
+  std::cout << "###COMMON CARDS###" << std::endl;
   for( auto k : T_Common) {
     std::cout << "-->"<< Rank[k.rank] << SuitChar[k.suit] << std::endl;
   }

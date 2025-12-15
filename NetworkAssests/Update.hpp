@@ -14,20 +14,20 @@
 class Update
 {
 public:
-  enum {HeaderLength = 4};
-  enum {MaxBodyLength = 512};
+  static constexpr int HeaderLength  = 4;
+  static constexpr int MaxBodyLength = 512;
 
   Update()
       : BodyLength(0)
   {
   }
 
-  const char* RetData() const
+  const char* Header() const
   {
     return Data;
   }
 
-  char* RetData()
+  char* Header()
   {
     return Data;
   }

@@ -12,7 +12,7 @@
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <boost/container/map.hpp>
 #include <boost/container/vector.hpp>
-#include "RandomEngine.hpp"
+#include "../GameAssets/RandomEngine.hpp"
 #define CLUB  2660
 #define DIAM  2665
 #define HEART 2663

@@ -5,7 +5,7 @@
 #define TEXAS_HOLD_EM_PLAYER_HPP
 #include <utility>
 #include <boost/container/string.hpp>
-#include "Deck.hpp"
+#include "../Deck/Deck.hpp"
 
 
 
