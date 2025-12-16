@@ -32,13 +32,13 @@ public:
 
 class ClientPackage {
 public:
-  bool HeartBeat = false;
+  int  HeartBeat = 0;
   bool NextStep = false;
   bool Leave = false;
   string Name;
   ClientPackage() = default;
   ClientPackage(char* UpDt);
-  ClientPackage(bool hb, bool ng, bool l, string n):
+  ClientPackage(int hb, bool ng, bool l, string n):
       HeartBeat(hb), NextStep(ng), Leave(l), Name(std::move(n)){}
   friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
   friend std::istream &operator>>(std::istream &in, ClientPackage &s);

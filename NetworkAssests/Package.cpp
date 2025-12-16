@@ -10,7 +10,7 @@ ServerPackage::ServerPackage(char *) {
 
 std::ostream &operator<<(std::ostream &out, const ServerPackage& s) {
 
-  out << R"({ "HeartBeat" : )" << s.HeartBeat << ','
+  out << R"({"HeartBeat" : )" << s.HeartBeat << ','
       << R"( "WinnerNotice" : )" << s.WinnerNotice << ','
       << R"( "Name" : ")" << s.Name << "\","
       << R"( "Winner" : ")" << s.Winner << "\","
@@ -190,7 +190,7 @@ std::ostream &operator<<(std::ostream &out, const ClientPackage &s) {
   out << R"({ "HeartBeat" : )" << s.HeartBeat << ','
       << R"( "NextStep" : )" << s.NextStep << ','
       << R"( "Leave" : )" << s.Leave << ','
-      << R"( "Name" : ")" << s.Name << '\"' << '}';
+      << R"( "Name" : ")" << s.Name << "\" }";
 
   return out;
 }

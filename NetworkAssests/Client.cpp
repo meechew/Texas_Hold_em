@@ -64,7 +64,7 @@ private:
                             boost::asio::buffer(read_msg_.Header(), Update::HeaderLength),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
-                              if (!ec && read_msg_.MakeHeader())
+                              if (!ec && read_msg_.DecodeHeader())
                               {
                                 do_read_body();
                               }
@@ -141,11 +141,13 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage lfPack(true, false, false, argv[1]);
-    ClientPackage sPack(false, true, false, argv[1]);
+    ClientPackage lfPack(0, false, false, argv[1]);
+    ClientPackage sPack(0, true, false, argv[1]);
     Update msg;
     std::stringstream StringBuff;
     while (true) {
+      StringBuff.str("");
+      StringBuff.clear();
       StringBuff << lfPack;
 
       msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
@@ -164,7 +166,8 @@ int main(int argc, char* argv[])
 
       //c.write(msg);
       
-      std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      ++lfPack.HeartBeat;
     }
     
     c.close();

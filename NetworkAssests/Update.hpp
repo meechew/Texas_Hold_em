@@ -59,7 +59,7 @@ public:
       BodyLength = MaxBodyLength;
   }
 
-  bool MakeHeader()
+  bool DecodeHeader()
   {
     char Header[HeaderLength + 1] = "";
     std::strncat(Header, Data, HeaderLength);
@@ -75,7 +75,7 @@ public:
   void EncodeHeader()
   {
     char Header[HeaderLength + 1] = "";
-    std::sprintf(Header, "%4d", static_cast<int>(BodyLength));
+    std::sprintf(Header, "%4d", BodyLength);
     std::memcpy(Data, Header, HeaderLength);
   }
 
