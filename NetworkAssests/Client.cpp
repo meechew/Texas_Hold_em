@@ -8,6 +8,8 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
+#include <boost/thread/pthread/thread_data.hpp>
+
 #include "Update.hpp"
 #include "Package.hpp"
 
@@ -145,7 +147,7 @@ int main(int argc, char* argv[])
     ClientPackage sPack(0, true, false, argv[1]);
     Update msg;
     std::stringstream StringBuff;
-    while (true) {
+    while (lfPack.HeartBeat < 10) {
       StringBuff.str("");
       StringBuff.clear();
       StringBuff << lfPack;
@@ -157,7 +159,7 @@ int main(int argc, char* argv[])
       c.write(msg);
 
       //StringBuff << sPack;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
       
       msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
       std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
@@ -166,10 +168,10 @@ int main(int argc, char* argv[])
 
       //c.write(msg);
       
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(5000));
       ++lfPack.HeartBeat;
     }
-    
+    exit(0);
     c.close();
     t.join();
   }

@@ -9,7 +9,7 @@ void Session::Start()
         /* << ReadUpdate.Body()*/ << std::endl;
     boost::asio::async_read(
         Skt,
-        boost::asio::buffer( ReadUpdate.Header(), Update::MaxBodyLength),
+        boost::asio::buffer( ReadUpdate.Header(), Update::HeaderLength),
         boost::bind(&Session::DoReadHeader, shared_from_this(), boost::asio::placeholders::error)
     );
 }

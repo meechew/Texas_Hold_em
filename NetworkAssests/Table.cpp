@@ -103,6 +103,7 @@ void Table::ProcessUpdate() {
     for(int k = 0; k < 5; ++k)
       if(HostPlayers[k].Who() == Pack.Name)
         Ptr = std::make_shared<Player>(HostPlayers[k]);
+    if (!Ptr.get()) return;
 
     if (Pack.HeartBeat) {
       SeatedPlayers.right.at(Ptr)->ResetTimer();
