@@ -223,6 +223,7 @@ std::istream &operator>>(std::istream &in, ClientPackage &s) {
     in.ignore(100, '"');
     in.get(c, 100, '"');
     if (strcmp("Name", c)) {throw  std::domain_error("Not valid package format");}
+    in.ignore(100, ':');
     in.ignore(100, '"');
     in.get(c, 100, '"');
     s.Name = c;
