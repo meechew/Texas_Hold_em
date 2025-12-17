@@ -1,5 +1,5 @@
 #include <iostream>
-#include "NetworkAssests/TexasServer.hpp"
+#include "NetworkAssets/TexasServer.hpp"
 
 int main() {
   try

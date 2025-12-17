@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
-#include <boost/thread/pthread/thread_data.hpp>
+#include <boost/thread.hpp>
 
 #include "Update.hpp"
 #include "Package.hpp"
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage lfPack(0, false, false, argv[1]);
+    ClientPackage lfPack(1, false, false, argv[1]);
     ClientPackage sPack(0, true, false, argv[1]);
     Update msg;
     std::stringstream StringBuff;

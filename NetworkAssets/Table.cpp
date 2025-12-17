@@ -93,11 +93,11 @@ void Table::IncomingUpdate(Update UpDt) {
 void Table::ProcessUpdate() {
   std::shared_ptr<Update> UpdatePtr;
   while(!IncomingQueue.empty()) {
-    UpdatePtr = std::make_shared<Update>(IncomingQueue.front());
-    boost::interprocess::bufferstream BuffersStream(UpdatePtr->Body(),
-        UpdatePtr->RetBodyLength());
     ClientPackage Pack;
-    BuffersStream >> Pack;
+    UpdatePtr = std::make_shared<Update>(IncomingQueue.front());
+    boost::interprocess::bufferstream BufferStream(UpdatePtr->Body(),
+        UpdatePtr->RetBodyLength());
+    BufferStream >> Pack;
 
     PlayerPtr Ptr;
     for(int k = 0; k < 5; ++k)

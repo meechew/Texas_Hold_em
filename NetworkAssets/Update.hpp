@@ -75,7 +75,7 @@ public:
   void EncodeHeader()
   {
     char Header[HeaderLength + 1] = "";
-    std::sprintf(Header, "%4d", BodyLength);
+    std::sprintf(Header, "%4lu", BodyLength);
     std::memcpy(Data, Header, HeaderLength);
   }
 

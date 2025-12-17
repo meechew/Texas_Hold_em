@@ -3,12 +3,12 @@
 
 #include "Deck/Deck.hpp"
 #include "Deck/FaceValues.hpp"
-#include "NetworkAssests/NetworkController.hpp"
-#include "NetworkAssests/Package.hpp"
+#include "NetworkAssets/NetworkController.hpp"
+#include "NetworkAssets/Package.hpp"
 
 void start_client()
 {
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    boost::this_thread::sleep_for(boost::chrono::seconds(2));
     std::system("./TexasClient ClientTest 127.0.0.1 5000");
 }
 

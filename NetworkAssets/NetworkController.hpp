@@ -121,9 +121,9 @@ private:
   Update ReadUpdate;
   bool Joined = false;
   UpdateQueue WriteUpdate;
-  void DoReadHeader(boost::system::error_code);
-  void DoReadBody();
-  void DoWrite();
+  void DoReadHeader(const boost::system::error_code& error_code);
+  void DoReadBody(const boost::system::error_code& error_code);
+  void DoWrite(const boost::system::error_code& error_code);
   PlayerPtr PtrToSeatedPlayer;
 };
 

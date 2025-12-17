@@ -56,10 +56,10 @@ void Session::DoReadBody(const boost::system::error_code& error_code)
     else Tbl.PlayerLeave(shared_from_this());
 }
 
-void Session::DoWrite(const boost::system::error_code& error)
+void Session::DoWrite(const boost::system::error_code& error_code)
 {
     auto self(shared_from_this());
-    if (!error) {
+    if (!error_code) {
         WriteUpdate.pop_front();
         if (!WriteUpdate.empty()) {
             boost::asio::async_write(

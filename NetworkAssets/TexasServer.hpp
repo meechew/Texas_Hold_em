@@ -194,7 +194,7 @@ private:
   UpdateQueue WriteUpdate;
   void DoReadHeader(const boost::system::error_code& error_code);
   void DoReadBody(const boost::system::error_code& error_code);
-  void DoWrite(const boost::system::error_code& error);
+  void DoWrite(const boost::system::error_code& error_code);
   PlayerPtr PtrToSeatedPlayer;
 };
 
