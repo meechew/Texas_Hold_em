@@ -48,8 +48,8 @@ int Table::NewPlayer(const boost::container::string& name) {
 
   for (int k = 0; k < 5; ++k) {
     Fmt = boost::format("Player%1%") %k;
-    if (Fmt.str().c_str() != HostPlayers[k].Who().c_str()) {
-      HostPlayers[k].AddPlayer(name);
+    if (Fmt.str().c_str() != HostPlayers[k].who().c_str()) {
+      HostPlayers[k].add_player(name);
       std::cout << "--Player: " << name << " Added--\n";
       return k;
     }
@@ -79,7 +79,7 @@ int Table::IncomingPlayer(SeatPtr Seat, Update& UpDt) {
 
 void Table::PlayerLeave(SeatPtr Seat) {
   if (SeatedPlayers.left.at(Seat))
-    SeatedPlayers.left.at(Seat)->Fold();
+    SeatedPlayers.left.at(Seat)->fold();
   SeatedPlayers.left.erase(Seat);
 }
 
@@ -101,7 +101,7 @@ void Table::ProcessUpdate() {
 
     PlayerPtr Ptr;
     for(int k = 0; k < 5; ++k)
-      if(HostPlayers[k].Who() == Pack.name_)
+      if(HostPlayers[k].who() == Pack.name_)
         Ptr = std::make_shared<Player>(HostPlayers[k]);
     if (!Ptr.get()) return;
 
@@ -163,34 +163,34 @@ void Table::Step() {
 
 void Table::Deal() {
   for (int k = 0; k < 5; ++k)
-    HostPlayers[k].NewHand(TableGame->deal(2));
+    HostPlayers[k].new_hand(TableGame->deal(2));
 }
 
-cards Table::Flop() {
-  cards ret = TableGame->flop();
+Cards Table::Flop() {
+  Cards ret = TableGame->flop();
   CommonCards = ret;
   return ret;
 }
 
-card Table::Turn() {
-  card ret = TableGame->river();
+Card Table::Turn() {
+  Card ret = TableGame->river();
   CommonCards.emplace_back(ret);
   return ret;
 }
 
-card Table::River() {
-  card ret = TableGame->turn();
+Card Table::River() {
+  Card ret = TableGame->turn();
   CommonCards.emplace_back(ret);
   for (int k = 0; k < 5; ++k) {
     if (!FinalHands[k].player_)
       continue;
     FinalHands[k].player_ = std::make_shared<Player>(HostPlayers[k]);
-    FinalHands[k].FinalHand = CommonCards + HostPlayers[k].Call();
+    FinalHands[k].FinalHand = CommonCards + HostPlayers[k].call();
   }
   return ret;
 }
 
-ScoreBoard Table::Tabulate(const cards& Hand) {
+ScoreBoard Table::Tabulate(const Cards& Hand) {
   boost::array<int, 14> ranks = {0};
   boost::array<int, 4> suits = {0};
 
@@ -241,7 +241,7 @@ ScoreBoard Table::Tabulate(const cards& Hand) {
     StraightFlush = true;
   }
 
-  card HighCard;
+  Card HighCard;
   for (auto c : Hand) {
     if (c.rank < HighCard.rank)
       HighCard = c;
@@ -312,6 +312,6 @@ Player* Table::CheckForWinner() {
 }
 
 ServerPackage * Table::Package(PlayerPtr p, bool hb, bool wn, bool sp) {
-  return new ServerPackage(hb, wn, sp, p->Who(),"", p->Call(),CommonCards);
+  return new ServerPackage(hb, wn, sp, p->who(),"", p->call(),CommonCards);
 }
 
