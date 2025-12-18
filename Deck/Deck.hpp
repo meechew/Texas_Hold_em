@@ -10,7 +10,6 @@
 #include <boost/range/algorithm/sort.hpp>
 #include <boost/container/container_fwd.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
-#include <boost/container/map.hpp>
 #include <boost/container/vector.hpp>
 #include "../GameAssets/RandomEngine.hpp"
 #define CLUB  2660
@@ -20,35 +19,35 @@
 
 using namespace boost::container;
 
-struct card {
+struct Card {
   int rank;
   int suit;
-  card(): rank(0), suit(0) {}
-  card(int r,int s): rank(r), suit(s) {}
-  inline bool operator==(const card &test) const {
+  Card(): rank(0), suit(0) {}
+  Card(int r,int s): rank(r), suit(s) {}
+  inline bool operator==(const Card &test) const {
     return test.rank == rank and test.suit == suit;
   }
-  inline bool operator<(card & c) const {
+  inline bool operator<(Card & c) const {
     return rank < c.rank;
   }
 };
 
-typedef vector<card> cards;
-typedef std::pair<card, card> hand;
-cards operator+(const cards& lhs, const cards& rhs);
-cards operator+(const cards& lhs, const hand& rhs);
+typedef vector<Card> Cards;
+typedef std::pair<Card, Card> Hand;
+Cards operator+(const Cards& lhs, const Cards& rhs);
+Cards operator+(const Cards& lhs, const Hand& rhs);
 
 class Deck {
 private:
-  cards Cards;
+  Cards        cards_;
   RandomEngine *rng;
-  void Build();
+  void         build();
 public:
   Deck();
   ~Deck();
-  void Shuffle();
-  cards Deal(int quant);
-  card Burn();
+  void  shuffle();
+  Cards deal(int count);
+  Card  burn();
 };
 
 #endif //TEXAS_HOLD_EM_DECK_HPP

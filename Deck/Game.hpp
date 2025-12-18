@@ -8,12 +8,12 @@
 
 class Game {
 private:
-  Deck Dealer;
+  Deck dealer_;
 public:
-  cards Deal(int quant) {return Dealer.Deal(quant);}
-  cards Flop();
-  card River();
-  card Turn();
+  Cards deal(const int count) {return dealer_.deal(count);}
+  Cards flop();
+  Card  river();
+  Card  turn();
 };
 
 

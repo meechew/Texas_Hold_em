@@ -33,12 +33,12 @@ Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     ProcessUpdate();
     for(const auto& p : SeatedPlayers) {
-      Pack = Package(p.right, true, false, false)->Serial();
+      Pack = Package(p.right, true, false, false)->serial();
       UpDt.MkBodyLength(std::strlen(Pack.c_str())+1);
       std::memcpy(UpDt.Body(),Pack.c_str(), UpDt.RetBodyLength() );
       UpDt.EncodeHeader();
-      p.left->CountTimer();
-      p.left->Signal(UpDt);
+      p.left->count_timer();
+      p.left->signal(UpDt);
     }
   }
 }
@@ -65,7 +65,7 @@ int Table::IncomingPlayer(SeatPtr Seat, Update& UpDt) {
   int pos;
   //in >> Pack;
 
-  pos = NewPlayer(Pack.Name);
+  pos = NewPlayer(Pack.name_);
   if (pos < 0)
     return pos;
 
@@ -101,21 +101,21 @@ void Table::ProcessUpdate() {
 
     PlayerPtr Ptr;
     for(int k = 0; k < 5; ++k)
-      if(HostPlayers[k].Who() == Pack.Name)
+      if(HostPlayers[k].Who() == Pack.name_)
         Ptr = std::make_shared<Player>(HostPlayers[k]);
     if (!Ptr.get()) return;
 
-    if (Pack.HeartBeat) {
-      SeatedPlayers.right.at(Ptr)->ResetTimer();
+    if (Pack.heart_beat_) {
+      SeatedPlayers.right.at(Ptr)->reset_timer();
       return;
     }
 
-    if (Pack.NextStep) {
+    if (Pack.next_step_) {
       Step();
       return;
     }
 
-    if (Pack.Leave) {
+    if (Pack.leave_) {
       PlayerLeave(SeatedPlayers.right.at(Ptr));
       return;
     }
@@ -163,28 +163,28 @@ void Table::Step() {
 
 void Table::Deal() {
   for (int k = 0; k < 5; ++k)
-    HostPlayers[k].NewHand(TableGame->Deal(2));
+    HostPlayers[k].NewHand(TableGame->deal(2));
 }
 
 cards Table::Flop() {
-  cards ret = TableGame->Flop();
+  cards ret = TableGame->flop();
   CommonCards = ret;
   return ret;
 }
 
 card Table::Turn() {
-  card ret = TableGame->River();
+  card ret = TableGame->river();
   CommonCards.emplace_back(ret);
   return ret;
 }
 
 card Table::River() {
-  card ret = TableGame->Turn();
+  card ret = TableGame->turn();
   CommonCards.emplace_back(ret);
   for (int k = 0; k < 5; ++k) {
-    if (!FinalHands[k].player)
+    if (!FinalHands[k].player_)
       continue;
-    FinalHands[k].player = std::make_shared<Player>(HostPlayers[k]);
+    FinalHands[k].player_ = std::make_shared<Player>(HostPlayers[k]);
     FinalHands[k].FinalHand = CommonCards + HostPlayers[k].Call();
   }
   return ret;
@@ -255,54 +255,54 @@ Player* Table::CheckForWinner() {
   Player* ret = nullptr;
 
   for (auto p : FinalHands) {
-    p.FinalScore = Tabulate(p.FinalHand);
+    p.final_score_ = Tabulate(p.FinalHand);
   }
 
-  if (FinalHands[0].FinalScore.StraightFlush or FinalHands[1].FinalScore.StraightFlush or
-      FinalHands[2].FinalScore.StraightFlush or FinalHands[3].FinalScore.StraightFlush or
-      FinalHands[4].FinalScore.StraightFlush) {
-
-  }
-
-  if (FinalHands[0].FinalScore.FourKind or FinalHands[1].FinalScore.FourKind or
-      FinalHands[2].FinalScore.FourKind or FinalHands[3].FinalScore.FourKind or
-      FinalHands[4].FinalScore.FourKind) {
+  if (FinalHands[0].final_score_.straight_flush_ or FinalHands[1].final_score_.straight_flush_ or
+      FinalHands[2].final_score_.straight_flush_ or FinalHands[3].final_score_.straight_flush_ or
+      FinalHands[4].final_score_.straight_flush_) {
 
   }
 
-  if (FinalHands[0].FinalScore.FullHouse or FinalHands[1].FinalScore.FullHouse or
-      FinalHands[2].FinalScore.FullHouse or FinalHands[3].FinalScore.FullHouse or
-      FinalHands[4].FinalScore.FullHouse) {
+  if (FinalHands[0].final_score_.four_kind_ or FinalHands[1].final_score_.four_kind_ or
+      FinalHands[2].final_score_.four_kind_ or FinalHands[3].final_score_.four_kind_ or
+      FinalHands[4].final_score_.four_kind_) {
 
   }
 
-  if (FinalHands[0].FinalScore.Flush or FinalHands[1].FinalScore.Flush or
-      FinalHands[2].FinalScore.Flush or FinalHands[3].FinalScore.Flush or
-      FinalHands[4].FinalScore.Flush) {
+  if (FinalHands[0].final_score_.full_house_ or FinalHands[1].final_score_.full_house_ or
+      FinalHands[2].final_score_.full_house_ or FinalHands[3].final_score_.full_house_ or
+      FinalHands[4].final_score_.full_house_) {
 
   }
 
-  if (FinalHands[0].FinalScore.Straight or FinalHands[1].FinalScore.Straight or
-      FinalHands[2].FinalScore.Straight or FinalHands[3].FinalScore.Straight or
-      FinalHands[4].FinalScore.Straight) {
+  if (FinalHands[0].final_score_.flush_ or FinalHands[1].final_score_.flush_ or
+      FinalHands[2].final_score_.flush_ or FinalHands[3].final_score_.flush_ or
+      FinalHands[4].final_score_.flush_) {
 
   }
 
-  if (FinalHands[0].FinalScore.ThreeKind or FinalHands[1].FinalScore.ThreeKind or
-      FinalHands[2].FinalScore.ThreeKind or FinalHands[3].FinalScore.ThreeKind or
-      FinalHands[4].FinalScore.ThreeKind) {
+  if (FinalHands[0].final_score_.straight_ or FinalHands[1].final_score_.straight_ or
+      FinalHands[2].final_score_.straight_ or FinalHands[3].final_score_.straight_ or
+      FinalHands[4].final_score_.straight_) {
 
   }
 
-  if (FinalHands[0].FinalScore.TwoPair or FinalHands[1].FinalScore.TwoPair or
-      FinalHands[2].FinalScore.TwoPair or FinalHands[3].FinalScore.TwoPair or
-      FinalHands[4].FinalScore.TwoPair) {
+  if (FinalHands[0].final_score_.three_kind_ or FinalHands[1].final_score_.three_kind_ or
+      FinalHands[2].final_score_.three_kind_ or FinalHands[3].final_score_.three_kind_ or
+      FinalHands[4].final_score_.three_kind_) {
 
   }
 
-  if (FinalHands[0].FinalScore.OnePair or FinalHands[1].FinalScore.OnePair or
-      FinalHands[2].FinalScore.OnePair or FinalHands[3].FinalScore.OnePair or
-      FinalHands[4].FinalScore.OnePair) {
+  if (FinalHands[0].final_score_.two_pair_ or FinalHands[1].final_score_.two_pair_ or
+      FinalHands[2].final_score_.two_pair_ or FinalHands[3].final_score_.two_pair_ or
+      FinalHands[4].final_score_.two_pair_) {
+
+  }
+
+  if (FinalHands[0].final_score_.one_pair_ or FinalHands[1].final_score_.one_pair_ or
+      FinalHands[2].final_score_.one_pair_ or FinalHands[3].final_score_.one_pair_ or
+      FinalHands[4].final_score_.one_pair_) {
 
   }
 

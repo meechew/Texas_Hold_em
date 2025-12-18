@@ -4,14 +4,14 @@
 #include "Game.hpp"
 
 
-cards Game::Flop() {
-  Dealer.Burn();
-  return Dealer.Deal(3);
+Cards Game::flop() {
+  dealer_.burn();
+  return dealer_.deal(3);
 }
 
-card Game::River() {
-  Dealer.Burn();
-  return Dealer.Deal(1).back();
+Card Game::river() {
+  dealer_.burn();
+  return dealer_.deal(1).back();
 }
 
-card Game::Turn() {return River();}
+Card Game::turn() {return river();}

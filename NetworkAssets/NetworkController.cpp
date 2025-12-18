@@ -14,7 +14,7 @@ void Session::Start()
     );
 }
 
-void Session::Signal(const Update& Upd)
+void Session::signal(const Update& Upd)
 {
     bool WriteInProgress = !WriteUpdate.empty();
     WriteUpdate.push_back(Upd);

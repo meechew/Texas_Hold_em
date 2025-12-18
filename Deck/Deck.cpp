@@ -7,44 +7,44 @@ Deck::~Deck() = default;
 
 Deck::Deck() {
   rng = new RandomEngine(0,51);
-  Build();
-  Shuffle();
+  build();
+  shuffle();
 }
 
-void Deck::Build() {
+void Deck::build() {
   for(int s = 1; s < 5; ++s)
     for(int r = 2; r < 15; ++r)
-      Cards.emplace_back(r,s);
+      cards_.emplace_back(r,s);
 }
 
-void Deck::Shuffle() {
-  boost::range::random_shuffle(Cards,*rng);
+void Deck::shuffle() {
+  boost::range::random_shuffle(cards_,*rng);
 }
 
-cards Deck::Deal(int quant) {
-  cards ret;
-  for(int k = 0; k < quant; ++k) {
-    ret.push_back(Cards.back());
-    Cards.pop_back();
+Cards Deck::deal(const int count) {
+  Cards ret;
+  for(int k = 0; k < count; ++k) {
+    ret.push_back(cards_.back());
+    cards_.pop_back();
   }
   return ret;
 }
 
-card Deck::Burn() {
-  card ret = Cards.back();
-  Cards.pop_back();
+Card Deck::burn() {
+  Card ret = cards_.back();
+  cards_.pop_back();
   return ret;
 }
 
-cards operator+(const cards& lhs, const cards& rhs) {
-  cards ret = lhs;
+Cards operator+(const Cards& lhs, const Cards& rhs) {
+  Cards ret = lhs;
   for(auto k : rhs)
     ret.emplace_back(k);
   return ret;
 }
 
-cards operator+(const cards& lhs, const hand& rhs) {
-  cards ret = lhs;
+Cards operator+(const Cards& lhs, const Hand& rhs) {
+  Cards ret = lhs;
   ret.emplace_back(rhs.first);
   ret.emplace_back(rhs.second);
   return ret;

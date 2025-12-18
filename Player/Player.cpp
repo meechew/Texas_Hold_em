@@ -3,23 +3,23 @@
 
 #include "Player.hpp"
 
-void Player::NewHand(cards Dealt) {
-  Hand.first = Dealt.front();
-  Hand.second = Dealt.back();
+void Player::new_hand(Cards c) {
+  hand_.first = c.front();
+  hand_.second = c.back();
 }
 
-void Player::AddPlayer(string n) {
-  Name = std::move(n);
+void Player::add_player(string n) {
+  name_ = std::move(n);
 }
 
-hand Player::Call() {
-  return Hand;
+Hand Player::call() {
+  return hand_;
 }
 
-void Player::Fold() {
-  Hand = std::make_pair<card,card>(card(0, 0), card(0, 0));
+void Player::fold() {
+  hand_ = std::make_pair<Card,Card>(Card(0, 0), Card(0, 0));
 }
 
-string Player::Who() {
-  return Name;
+string Player::who() {
+  return name_;
 }

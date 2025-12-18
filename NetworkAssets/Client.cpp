@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
     ClientPackage sPack(0, true, false, argv[1]);
     Update msg;
     std::stringstream StringBuff;
-    while (lfPack.HeartBeat < 10) {
+    while (lfPack.heart_beat_ < 10) {
       StringBuff.str("");
       StringBuff.clear();
       StringBuff << lfPack;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
       //c.write(msg);
       
       boost::this_thread::sleep_for(boost::chrono::milliseconds(5000));
-      ++lfPack.HeartBeat;
+      ++lfPack.heart_beat_;
     }
     exit(0);
     c.close();

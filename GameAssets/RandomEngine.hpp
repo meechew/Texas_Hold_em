@@ -10,10 +10,10 @@
 
 class RandomEngine {
 private:
-  boost::mt19937 gen;
-  boost::uniform_int<int> RangeDef;
-  boost::random::variate_generator<boost::mt19937,
-				   boost::uniform_int<int>> *rng;
+  boost::mt19937                              generator_;
+  boost::uniform_int<int>                     range_;
+  boost::random::variate_generator
+    <boost::mt19937, boost::uniform_int<int>> *rng_;
 
 public:
   //RandomEngine() = default;

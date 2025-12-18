@@ -11,17 +11,17 @@
 
 class Player {
 private:
-  string Name{""};
-  hand Hand;
+  string name_{""};
+  Hand   hand_;
 public:
   Player() = default;
   explicit Player(string n):
-      Name(std::move(n)) {}
-  void NewHand(cards Dealt);
-  void AddPlayer(string n);
-  void Fold();
-  string Who();
-  hand Call();
+      name_(std::move(n)) {}
+  void   new_hand(Cards c);
+  void   add_player(string n);
+  void   fold();
+  string who();
+  Hand   call();
 };
 
 

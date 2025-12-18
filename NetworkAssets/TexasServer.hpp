@@ -6,12 +6,7 @@
 #include <deque>
 #include <cstdio>
 #include <memory>
-#include <chrono>
 #include <utility>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/format.hpp>
@@ -32,77 +27,77 @@ using string = boost::container::string;
 
 class Seat {
 public:
-  virtual void Signal(const Update& Upd) = 0;
-  virtual void ResetTimer() = 0;
-  virtual void CountTimer() = 0;
+  virtual void signal(const Update& u) = 0;
+  virtual void reset_timer() = 0;
+  virtual void count_timer() = 0;
 };
 
 typedef std::shared_ptr<Seat> SeatPtr;
 
 class Player {
 private:
-  string Name{""};
-  hand Hand;
-  SeatPtr ClientSession;
+  string  name_{""};
+  Hand    hand_;
+  SeatPtr session_;
 public:
   Player() = default;
   explicit Player(string n):
-      Name(std::move(n)) {}
-  void NewHand(cards Dealt) {
-    Hand.first = Dealt.front();
-    Hand.second = Dealt.back();
+      name_(std::move(n)) {}
+  void new_hand(Cards Dealt) {
+    hand_.first = Dealt.front();
+    hand_.second = Dealt.back();
   }
   
-  void AddPlayer(string n) {
-    Name = std::move(n);
+  void add_player(string n) {
+    name_ = std::move(n);
   }
   
-  void Fold() {
-    Hand = std::make_pair<card,card>(card(0, 0), card(0, 0));
+  void fold() {
+    hand_ = std::make_pair<Card, Card>(Card(0, 0), Card(0, 0));
   }
   
-  string Who() {
-    return Name;
+  string who() {
+    return name_;
   }
   
-  hand Call() {
-    return Hand;
+  Hand call() {
+    return hand_;
   }
 };
 
 class ServerPackage {
 public:
-  bool HeartBeat = false;
-  bool WinnerNotice = false;
-  bool SplitPot = false;
-  string Name;
-  string Winner;
-  hand Hand;
-  boost::container::vector<card> Tbl;
+  bool   heart_beat_    = false;
+  bool   winner_notice_ = false;
+  bool   split_pot_     = false;
+  string name_;
+  string winner_;
+  Hand   hand_;
+  boost::container::vector<Card> table_;
   ServerPackage() = default;
   ServerPackage(char* UpDt);
   ServerPackage(bool hb, bool wn, bool sp, string n, string w, hand h,
                 boost::container::vector<card> tbl):
-      HeartBeat(hb), WinnerNotice(wn), SplitPot(sp), Name(std::move(n)),
-      Winner(std::move(w)), Hand(std::move(h)), Tbl(std::move(tbl)){}
-  string Serial();
+      heart_beat_(hb), winner_notice_(wn), split_pot_(sp), name_(std::move(n)),
+      winner_(std::move(w)), hand_(std::move(h)), table_(std::move(tbl)){}
+  string serial();
   friend std::ostream &operator<<(std::ostream &out, const ServerPackage &s);
   friend std::istream &operator>>(std::istream &in, ServerPackage &s);
 };
 
 class ClientPackage {
 public:
-  bool HeartBeat = false;
-  bool NextStep = false;
-  bool Leave = false;
-  string Name;
+  bool   heartbeat_ = false;
+  bool   next_step_  = false;
+  bool   leave_     = false;
+  string name_;
   ClientPackage() = default;
   ClientPackage(char* UpDt);
   ClientPackage(bool hb, bool ng, bool l, string n):
-      HeartBeat(hb), NextStep(ng), Leave(l), Name(std::move(n)){}
+      heartbeat_(hb), next_step_(ng), leave_(l), name_(std::move(n)){}
   friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
   friend std::istream &operator>>(std::istream &in, ClientPackage &s);
-  string Serial();
+  string serial();
 };
 
 
@@ -111,26 +106,26 @@ typedef std::deque<Update> UpdateQueue;
 typedef boost::array<Player,5> Players;
 
 struct ScoreBoard {
-  card HighCard = card(0, 0);
-  bool StraightFlush = false;
-  bool FourKind = false;
-  bool FullHouse = false;
-  bool Flush = false;
-  bool Straight = false;
-  bool ThreeKind = false;
-  bool TwoPair = false;
-  bool OnePair = false;
-  ScoreBoard() = default;
+  Card high_card_      = Card(0, 0);
+  bool straight_flush_ = false;
+  bool four_kind_      = false;
+  bool full_house_     = false;
+  bool flush_          = false;
+  bool straight_       = false;
+  bool three_kind_     = false;
+  bool two_pair_       = false;
+  bool one_pair_       = false;
+  ScoreBoard()         = default;
   ScoreBoard(bool StraightFlush, bool FourKind, bool FullHouse, bool Flush, bool Straight,
-	     bool ThreeKind, bool TwoPair, bool OnePair, const card &HighCard) : HighCard(HighCard), StraightFlush(StraightFlush),
-										 FourKind(FourKind), FullHouse(FullHouse), Flush(Flush), Straight(Straight),
-										 ThreeKind(ThreeKind), TwoPair(TwoPair), OnePair(OnePair) {}
+	     bool ThreeKind, bool TwoPair, bool OnePair, const card &HighCard) : high_card_(HighCard), straight_flush_(StraightFlush),
+										 four_kind_(FourKind), full_house_(FullHouse), flush_(Flush), straight_(Straight),
+										 three_kind_(ThreeKind), two_pair_(TwoPair), one_pair_(OnePair) {}
 };
 
 struct Finals {
-  PlayerPtr player;
-  cards FinalHand;
-  ScoreBoard FinalScore;
+  PlayerPtr  player_;
+  Cards      final_hand_;
+  ScoreBoard final_score_;
 };
 
 typedef boost::array<Finals,5> PlayerFinals;
@@ -181,10 +176,10 @@ public:
   Session(tcp::socket Skt,Table& Tbl)
     : Skt(std::move(Skt)), Tbl(Tbl) {}
   void Start();
-  void Signal (const Update& Upd) override;
+  void signal (const Update& Upd) override;
   void Join() {Joined = true;}
-  void ResetTimer() override {Timer = 0;}
-  void CountTimer() override {++Timer;}
+  void reset_timer() override {Timer = 0;}
+  void count_timer() override {++Timer;}
 private:
   int Timer = 0;
   tcp::socket Skt;

@@ -5,11 +5,11 @@
 
 RandomEngine::RandomEngine(int x, int y) {
   //initialize RNG with a random value
-  gen = boost::mt19937(time(0));
-  RangeDef = boost::uniform_int<int>(x, y);
-  rng = new boost::random::variate_generator<boost::mt19937,  boost::uniform_int<int>>(gen, RangeDef);
+  generator_ = boost::mt19937(time(0));
+  range_ = boost::uniform_int<int>(x, y);
+  rng_ = new boost::random::variate_generator<boost::mt19937,  boost::uniform_int<int>>(generator_, range_);
 }
 
 unsigned int RandomEngine::operator()(int i) {
-  return gen()%i;
+  return generator_()%i;
 }

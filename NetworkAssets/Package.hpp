@@ -12,37 +12,37 @@ using string = boost::container::string;
 
 class ServerPackage {
 public:
-  bool HeartBeat = false;
-  bool WinnerNotice = false;
-  bool SplitPot = false;
-  string Name;
-  string Winner;
-  hand Hand;
-  boost::container::vector<card> Tbl;
+  bool   heart_beat_    = false;
+  bool   winner_notice_ = false;
+  bool   split_pot_     = false;
+  string name_;
+  string winner_;
+  Hand   hand_;
+  boost::container::vector<Card> table_;
   ServerPackage() = default;
   ServerPackage(char* UpDt);
-  ServerPackage(bool hb, bool wn, bool sp, string n, string w, hand h,
-      boost::container::vector<card> tbl):
-    HeartBeat(hb), WinnerNotice(wn), SplitPot(sp), Name(std::move(n)),
-    Winner(std::move(w)), Hand(std::move(h)), Tbl(std::move(tbl)){}
-  string Serial();
+  ServerPackage(bool hb, bool wn, bool sp, string n, string w, Hand h,
+      boost::container::vector<Card> tbl):
+    heart_beat_(hb), winner_notice_(wn), split_pot_(sp), name_(std::move(n)),
+    winner_(std::move(w)), hand_(std::move(h)), table_(std::move(tbl)){}
+  string serial() const;
   friend std::ostream &operator<<(std::ostream &out, const ServerPackage &s);
   friend std::istream &operator>>(std::istream &in, ServerPackage &s);
 };
 
 class ClientPackage {
 public:
-  int  HeartBeat = 0;
-  bool NextStep = false;
-  bool Leave = false;
-  string Name;
+  int    heart_beat_ = 0;
+  bool   next_step_  = false;
+  bool   leave_      = false;
+  string name_;
   ClientPackage() = default;
   ClientPackage(char* UpDt);
   ClientPackage(int hb, bool ng, bool l, string n):
-      HeartBeat(hb), NextStep(ng), Leave(l), Name(std::move(n)){}
+      heart_beat_(hb), next_step_(ng), leave_(l), name_(std::move(n)){}
+  string serial();
   friend std::ostream &operator<<(std::ostream &out, const ClientPackage &s);
   friend std::istream &operator>>(std::istream &in, ClientPackage &s);
-  string Serial();
 };
 
 #endif //TEXAS_HOLD_EM_PACKAGE_HPP
