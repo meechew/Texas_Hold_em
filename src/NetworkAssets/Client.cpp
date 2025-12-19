@@ -63,10 +63,10 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.Header(), Update::HeaderLength),
+                            boost::asio::buffer(read_msg_.header(), Update::HEADER_LENGTH),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
-                              if (!ec && read_msg_.DecodeHeader())
+                              if (!ec && read_msg_.decode_header())
                               {
                                 do_read_body();
                               }
@@ -80,12 +80,12 @@ private:
   void do_read_body()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.Body(), read_msg_.RetBodyLength()),
+                            boost::asio::buffer(read_msg_.body(), read_msg_.get_body_length()),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec)
                               {
-                                std::cout.write(read_msg_.Body(), read_msg_.RetBodyLength());
+                                std::cout.write(read_msg_.body(), read_msg_.get_body_length());
                                 std::cout << "\n";
                                 do_read_header();
                               }
@@ -99,8 +99,8 @@ private:
   void do_write()
   {
     boost::asio::async_write(socket_,
-                             boost::asio::buffer(write_msgs_.front().Header(),
-                                                 write_msgs_.front().Length()),
+                             boost::asio::buffer(write_msgs_.front().header(),
+                                                 write_msgs_.front().length()),
                              [this](boost::system::error_code ec, std::size_t /*length*/)
                              {
                                if (!ec)
@@ -152,18 +152,18 @@ int main(int argc, char* argv[])
       StringBuff.clear();
       StringBuff << lfPack;
 
-      msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
-      std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
-      msg.EncodeHeader();
+      msg.allocate_body(std::strlen(StringBuff.str().c_str())+1);
+      std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
+      msg.encode_header();
       std::cerr << "<-SENDING LF-> "; 
       c.write(msg);
 
       //StringBuff << sPack;
       boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
       
-      msg.MkBodyLength(std::strlen(StringBuff.str().c_str())+1);
-      std::memcpy(msg.Body(), StringBuff.str().c_str(), msg.RetBodyLength());
-      msg.EncodeHeader();
+      msg.allocate_body(std::strlen(StringBuff.str().c_str())+1);
+      std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
+      msg.encode_header();
       //std::cerr << "<-SENDING STEP-> ";
 
       //c.write(msg);

@@ -38,25 +38,26 @@ public:
 typedef std::shared_ptr<Seat> SeatPtr;
 
 struct ScoreBoard {
-  card HighCard = card(0, 0);
+  Card high_card_      = Card(0, 0);
   bool straight_flush_ = false;
-  bool four_kind_ = false;
-  bool full_house_ = false;
-  bool flush_ = false;
-  bool straight_ = false;
-  bool three_kind_ = false;
-  bool two_pair_ = false;
-  bool one_pair_ = false;
-  ScoreBoard() = default;
+  bool four_kind_      = false;
+  bool full_house_     = false;
+  bool flush_          = false;
+  bool straight_       = false;
+  bool three_kind_     = false;
+  bool two_pair_       = false;
+  bool one_pair_       = false;
+  ScoreBoard()         = default;
   ScoreBoard(bool StraightFlush, bool FourKind, bool FullHouse, bool Flush, bool Straight,
-             bool ThreeKind, bool TwoPair, bool OnePair, const card &HighCard) : HighCard(HighCard), straight_flush_(StraightFlush),
-                                                                                 four_kind_(FourKind), full_house_(FullHouse), flush_(Flush), straight_(Straight),
-                                                                                 three_kind_(ThreeKind), two_pair_(TwoPair), one_pair_(OnePair) {}
+             bool ThreeKind, bool TwoPair, bool OnePair, const Card &HighCard) :
+    high_card_(HighCard), straight_flush_(StraightFlush),
+    four_kind_(FourKind), full_house_(FullHouse), flush_(Flush), straight_(Straight),
+    three_kind_(ThreeKind), two_pair_(TwoPair), one_pair_(OnePair) {}
 };
 
 struct Finals {
   PlayerPtr player_;
-  cards FinalHand;
+  Cards final_hand_;
   ScoreBoard final_score_;
 };
 
@@ -66,40 +67,40 @@ typedef SocketSeatLink::value_type SocketSeatPair;
 
 class Table {
 private:
-  int Stage = 0;
-  Game *TableGame = nullptr;
-  Players HostPlayers;
-  PlayerFinals FinalHands;
-  SocketSeatLink SeatedPlayers;
-  boost::asio::io_context& ioContext;
-  tcp::socket Socket;
-  UpdateQueue IncomingQueue;
-  std::shared_ptr<boost::thread> ServerThread;
+  int stage_ = 0;
+  Game*                          game_table_ = nullptr;
+  Players                        host_player_;
+  PlayerFinals                   final_hand_;
+  SocketSeatLink                 seated_players_;
+  boost::asio::io_context&       context_;
+  tcp::socket                    socket_;
+  UpdateQueue                    incoming_queue_;
+  std::shared_ptr<boost::thread> server_thread_;
 
-  static ScoreBoard Tabulate(const cards&);
-  int NewPlayer(const boost::container::string& name);
+  static ScoreBoard tabulate(const Cards&);
+  int new_player(const boost::container::string& name);
 
-  [[noreturn]] void StartHeartBeat();
-  void Deal();
-  cards Flop();
-  card Turn();
-  card River();
+  [[noreturn]] void start_heart_beat();
+  void  deal();
+  Cards flop();
+  Card  turn();
+  Card  river();
 
 public:
-  cards CommonCards;
-  Table() = default;
-  Table(boost::asio::io_context &Context, tcp::endpoint Endpoint);
-  void AddThread(std::shared_ptr<boost::thread> ThrPtr) {
-    ServerThread = std::move(ThrPtr);
+  Cards common_cards_;
+  Table() = delete;
+  Table(boost::asio::io_context& c, tcp::endpoint e);
+  void add_thread(std::shared_ptr<boost::thread> t) {
+    server_thread_ = std::move(t);
   }
-  int IncomingPlayer(SeatPtr Seat, Update& UpDt);
-  void PlayerLeave(SeatPtr);
-  void IncomingUpdate(Update UpDt);
-  void ProcessUpdate();
-  void GameStart();
-  void Step();
-  Player* CheckForWinner();
-  ServerPackage *Package(PlayerPtr p, bool hb, bool wn, bool sp);
+  int  incoming_player(SeatPtr s, Update& u);
+  void player_leave(SeatPtr s);
+  void incoming_update(Update u);
+  void process_update();
+  void game_start();
+  void step();
+  Player* check_for_winner();
+  ServerPackage* make_package(PlayerPtr p, bool hb, bool wn, bool sp);
 
 };
 
@@ -108,37 +109,40 @@ class Session:
   public std::enable_shared_from_this<Session> {
 public:
   Session(tcp::socket Skt,Table& Tbl)
-    : Skt(std::move(Skt)), Tbl(Tbl) {}
-  void Start();
-  void signal (const Update& Upd) override;
-  void Join() {Joined = true;}
-  void reset_timer() override {Timer = 0;}
-  void count_timer() override {++Timer;}
+    : socket_(std::move(Skt)), table_(Tbl) {}
+  void start();
+  void signal(const Update& Upd) override;
+  void join() {joined_ = true;}
+  void reset_timer() override {timer_ = 0;}
+  void count_timer() override {++timer_;}
 private:
-  int Timer = 0;
-  tcp::socket Skt;
-  Table& Tbl;
-  Update ReadUpdate;
-  bool Joined = false;
-  UpdateQueue WriteUpdate;
-  void DoReadHeader(const boost::system::error_code& error_code);
-  void DoReadBody(const boost::system::error_code& error_code);
-  void DoWrite(const boost::system::error_code& error_code);
-  PlayerPtr PtrToSeatedPlayer;
+  bool        joined_ = false;
+  int         timer_ = 0;
+  tcp::socket socket_;
+  Table&      table_;
+  Update      incoming_update_;
+  UpdateQueue update_queue_;
+  PlayerPtr   seated_player_pointer_;
+  void do_read_header(const boost::system::error_code& error_code);
+  void do_read_body(const boost::system::error_code& error_code);
+  void do_write(const boost::system::error_code& error_code);
 };
 
 class NetworkController {
 public:
-  NetworkController(boost::asio::io_context& Context,
-		    const tcp::endpoint& Endpoint, Table* TblPtr):
-    Acceptor(Context, Endpoint), Tbl(TblPtr){
-    DoAccept();
+  NetworkController(
+      boost::asio::io_context& c,
+		  const tcp::endpoint& e,
+		  Table* t
+		):
+    acceptor_(c, e), table_(t){
+    do_accept();
   }
 
 private:
-  tcp::acceptor Acceptor;
-  void DoAccept();
-  Table* Tbl;
+  tcp::acceptor acceptor_;
+  void do_accept();
+  Table* table_;
 };
 
 

@@ -3,26 +3,26 @@
 
 #include "NetworkController.hpp"
 
-Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
-    ioContext(Context), Socket(Context) {
-  NetworkController Server(Context, Endpoint, this);
-  ServerThread = std::make_shared<boost::thread>(
-      boost::thread([&Context](){Context.run();}));
-  TableGame = new Game;
+Table::Table(boost::asio::io_context &c, const tcp::endpoint e) :
+    context_(c), socket_(c) {
+  NetworkController Server(c, e, this);
+  server_thread_ = std::make_shared<boost::thread>(
+      boost::thread([&c](){c.run();}));
+  game_table_ = new Game;
 
-  boost::format Fmt;
+  boost::format format;
 
   for(int k = 0; k < 5; ++k) {
-    Fmt = boost::format("Player%1%") %k;
-    NewPlayer(boost::container::string(Fmt.str().c_str()));
+    format = boost::format("Player%1%") %k;
+    new_player(boost::container::string(format.str().c_str()));
   }
 
-  StartHeartBeat();
-  ServerThread->join();
+  start_heart_beat();
+  server_thread_->join();
 }
 
 
-[[noreturn]] void Table::StartHeartBeat() {
+[[noreturn]] void Table::start_heart_beat() {
   std::cout << "--STARTING HEART BEAT--\n";
 
   Update UpDt;
@@ -31,25 +31,25 @@ Table::Table(boost::asio::io_context &Context, const tcp::endpoint Endpoint) :
 
   for(;;) {
     boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
-    ProcessUpdate();
-    for(const auto& p : SeatedPlayers) {
-      Pack = Package(p.right, true, false, false)->serial();
-      UpDt.MkBodyLength(std::strlen(Pack.c_str())+1);
-      std::memcpy(UpDt.Body(),Pack.c_str(), UpDt.RetBodyLength() );
-      UpDt.EncodeHeader();
+    process_update();
+    for(const auto& p : seated_players_) {
+      Pack = make_package(p.right, true, false, false)->serial();
+      UpDt.allocate_body(std::strlen(Pack.c_str())+1);
+      std::memcpy(UpDt.body(),Pack.c_str(), UpDt.get_body_length() );
+      UpDt.encode_header();
       p.left->count_timer();
       p.left->signal(UpDt);
     }
   }
 }
 
-int Table::NewPlayer(const boost::container::string& name) {
+int Table::new_player(const boost::container::string& name) {
   boost::format Fmt;
 
   for (int k = 0; k < 5; ++k) {
     Fmt = boost::format("Player%1%") %k;
-    if (Fmt.str().c_str() != HostPlayers[k].who().c_str()) {
-      HostPlayers[k].add_player(name);
+    if (Fmt.str().c_str() != host_player_[k].who().c_str()) {
+      host_player_[k].add_player(name);
       std::cout << "--Player: " << name << " Added--\n";
       return k;
     }
@@ -60,100 +60,100 @@ int Table::NewPlayer(const boost::container::string& name) {
 
 // Take a pointer to a socket and the first message from that socket
 // Pulls the Name out of it and assigning association with player pointer.
-int Table::IncomingPlayer(SeatPtr Seat, Update& UpDt) {
-  ClientPackage Pack(UpDt.Body());
+int Table::incoming_player(SeatPtr s, Update& u) {
+  ClientPackage Pack(u.body());
   int pos;
   //in >> Pack;
 
-  pos = NewPlayer(Pack.name_);
+  pos = new_player(Pack.name_);
   if (pos < 0)
     return pos;
 
-  SeatedPlayers.insert(SocketSeatPair(Seat,
-      std::make_shared<Player>(HostPlayers[pos])));
+  seated_players_.insert(SocketSeatPair(s,
+      std::make_shared<Player>(host_player_[pos])));
 
-  dynamic_cast<Session&>(*Seat).Join();
+  dynamic_cast<Session&>(*s).join();
 
   return pos;
 }
 
-void Table::PlayerLeave(SeatPtr Seat) {
-  if (SeatedPlayers.left.at(Seat))
-    SeatedPlayers.left.at(Seat)->fold();
-  SeatedPlayers.left.erase(Seat);
+void Table::player_leave(SeatPtr Seat) {
+  if (seated_players_.left.at(Seat))
+    seated_players_.left.at(Seat)->fold();
+  seated_players_.left.erase(Seat);
 }
 
-void Table::IncomingUpdate(Update UpDt) {
-  IncomingQueue.push_back(UpDt);
+void Table::incoming_update(Update u) {
+  incoming_queue_.push_back(u);
 }
 
 
 // This can be written more effectively. maybe rewrite to attach the
 // socket to the Player class.
-void Table::ProcessUpdate() {
+void Table::process_update() {
   std::shared_ptr<Update> UpdatePtr;
-  while(!IncomingQueue.empty()) {
+  while(!incoming_queue_.empty()) {
     ClientPackage Pack;
-    UpdatePtr = std::make_shared<Update>(IncomingQueue.front());
-    boost::interprocess::bufferstream BufferStream(UpdatePtr->Body(),
-        UpdatePtr->RetBodyLength());
+    UpdatePtr = std::make_shared<Update>(incoming_queue_.front());
+    boost::interprocess::bufferstream BufferStream(UpdatePtr->body(),
+        UpdatePtr->get_body_length());
     BufferStream >> Pack;
 
     PlayerPtr Ptr;
     for(int k = 0; k < 5; ++k)
-      if(HostPlayers[k].who() == Pack.name_)
-        Ptr = std::make_shared<Player>(HostPlayers[k]);
+      if(host_player_[k].who() == Pack.name_)
+        Ptr = std::make_shared<Player>(host_player_[k]);
     if (!Ptr.get()) return;
 
     if (Pack.heart_beat_) {
-      SeatedPlayers.right.at(Ptr)->reset_timer();
+      seated_players_.right.at(Ptr)->reset_timer();
       return;
     }
 
     if (Pack.next_step_) {
-      Step();
+      step();
       return;
     }
 
     if (Pack.leave_) {
-      PlayerLeave(SeatedPlayers.right.at(Ptr));
+      player_leave(seated_players_.right.at(Ptr));
       return;
     }
-    IncomingQueue.pop_front();
+    incoming_queue_.pop_front();
   }
 }
 
 
-void Table::GameStart() {
-  delete TableGame;
-  TableGame = new Game;
-  Stage = 0;
+void Table::game_start() {
+  delete game_table_;
+  game_table_ = new Game;
+  stage_ = 0;
 }
 
-void Table::Step() {
-  switch (Stage) {
+void Table::step() {
+  switch (stage_) {
     case 0:
-      Deal();
+      deal();
       std::cout << "\tDeal\n";
       return;
     case 1:
-      Flop();
+      flop();
       std::cout << "\tFlop\n";
       return;
     case 2:
-      Turn();
+      turn();
       std::cout << "\tTurn\n";
       return;
     case 3:
-      River();
+      river();
       std::cout << "\tRiver\n";
       return;
     case 4:
-      CheckForWinner();
+      check_for_winner();
       std::cout << "\tCall\n";
       return;
     case 5:
-      GameStart();
+      game_start();
       std::cout << "\tNew Game\n";
       return;
     default:
@@ -161,36 +161,36 @@ void Table::Step() {
   }
 }
 
-void Table::Deal() {
+void Table::deal() {
   for (int k = 0; k < 5; ++k)
-    HostPlayers[k].new_hand(TableGame->deal(2));
+    host_player_[k].new_hand(game_table_->deal(2));
 }
 
-Cards Table::Flop() {
-  Cards ret = TableGame->flop();
-  CommonCards = ret;
+Cards Table::flop() {
+  Cards ret = game_table_->flop();
+  common_cards_ = ret;
   return ret;
 }
 
-Card Table::Turn() {
-  Card ret = TableGame->river();
-  CommonCards.emplace_back(ret);
+Card Table::turn() {
+  Card ret = game_table_->river();
+  common_cards_.emplace_back(ret);
   return ret;
 }
 
-Card Table::River() {
-  Card ret = TableGame->turn();
-  CommonCards.emplace_back(ret);
+Card Table::river() {
+  Card ret = game_table_->turn();
+  common_cards_.emplace_back(ret);
   for (int k = 0; k < 5; ++k) {
-    if (!FinalHands[k].player_)
+    if (!final_hand_[k].player_)
       continue;
-    FinalHands[k].player_ = std::make_shared<Player>(HostPlayers[k]);
-    FinalHands[k].FinalHand = CommonCards + HostPlayers[k].call();
+    final_hand_[k].player_ = std::make_shared<Player>(host_player_[k]);
+    final_hand_[k].final_hand_ = common_cards_ + host_player_[k].call();
   }
   return ret;
 }
 
-ScoreBoard Table::Tabulate(const Cards& Hand) {
+ScoreBoard Table::tabulate(const Cards& Hand) {
   boost::array<int, 14> ranks = {0};
   boost::array<int, 4> suits = {0};
 
@@ -251,58 +251,58 @@ ScoreBoard Table::Tabulate(const Cards& Hand) {
 }
 
 
-Player* Table::CheckForWinner() {
+Player* Table::check_for_winner() {
   Player* ret = nullptr;
 
-  for (auto p : FinalHands) {
-    p.final_score_ = Tabulate(p.FinalHand);
+  for (auto p : final_hand_) {
+    p.final_score_ = tabulate(p.final_hand_);
   }
 
-  if (FinalHands[0].final_score_.straight_flush_ or FinalHands[1].final_score_.straight_flush_ or
-      FinalHands[2].final_score_.straight_flush_ or FinalHands[3].final_score_.straight_flush_ or
-      FinalHands[4].final_score_.straight_flush_) {
-
-  }
-
-  if (FinalHands[0].final_score_.four_kind_ or FinalHands[1].final_score_.four_kind_ or
-      FinalHands[2].final_score_.four_kind_ or FinalHands[3].final_score_.four_kind_ or
-      FinalHands[4].final_score_.four_kind_) {
+  if (final_hand_[0].final_score_.straight_flush_ or final_hand_[1].final_score_.straight_flush_ or
+      final_hand_[2].final_score_.straight_flush_ or final_hand_[3].final_score_.straight_flush_ or
+      final_hand_[4].final_score_.straight_flush_) {
 
   }
 
-  if (FinalHands[0].final_score_.full_house_ or FinalHands[1].final_score_.full_house_ or
-      FinalHands[2].final_score_.full_house_ or FinalHands[3].final_score_.full_house_ or
-      FinalHands[4].final_score_.full_house_) {
+  if (final_hand_[0].final_score_.four_kind_ or final_hand_[1].final_score_.four_kind_ or
+      final_hand_[2].final_score_.four_kind_ or final_hand_[3].final_score_.four_kind_ or
+      final_hand_[4].final_score_.four_kind_) {
 
   }
 
-  if (FinalHands[0].final_score_.flush_ or FinalHands[1].final_score_.flush_ or
-      FinalHands[2].final_score_.flush_ or FinalHands[3].final_score_.flush_ or
-      FinalHands[4].final_score_.flush_) {
+  if (final_hand_[0].final_score_.full_house_ or final_hand_[1].final_score_.full_house_ or
+      final_hand_[2].final_score_.full_house_ or final_hand_[3].final_score_.full_house_ or
+      final_hand_[4].final_score_.full_house_) {
 
   }
 
-  if (FinalHands[0].final_score_.straight_ or FinalHands[1].final_score_.straight_ or
-      FinalHands[2].final_score_.straight_ or FinalHands[3].final_score_.straight_ or
-      FinalHands[4].final_score_.straight_) {
+  if (final_hand_[0].final_score_.flush_ or final_hand_[1].final_score_.flush_ or
+      final_hand_[2].final_score_.flush_ or final_hand_[3].final_score_.flush_ or
+      final_hand_[4].final_score_.flush_) {
 
   }
 
-  if (FinalHands[0].final_score_.three_kind_ or FinalHands[1].final_score_.three_kind_ or
-      FinalHands[2].final_score_.three_kind_ or FinalHands[3].final_score_.three_kind_ or
-      FinalHands[4].final_score_.three_kind_) {
+  if (final_hand_[0].final_score_.straight_ or final_hand_[1].final_score_.straight_ or
+      final_hand_[2].final_score_.straight_ or final_hand_[3].final_score_.straight_ or
+      final_hand_[4].final_score_.straight_) {
 
   }
 
-  if (FinalHands[0].final_score_.two_pair_ or FinalHands[1].final_score_.two_pair_ or
-      FinalHands[2].final_score_.two_pair_ or FinalHands[3].final_score_.two_pair_ or
-      FinalHands[4].final_score_.two_pair_) {
+  if (final_hand_[0].final_score_.three_kind_ or final_hand_[1].final_score_.three_kind_ or
+      final_hand_[2].final_score_.three_kind_ or final_hand_[3].final_score_.three_kind_ or
+      final_hand_[4].final_score_.three_kind_) {
 
   }
 
-  if (FinalHands[0].final_score_.one_pair_ or FinalHands[1].final_score_.one_pair_ or
-      FinalHands[2].final_score_.one_pair_ or FinalHands[3].final_score_.one_pair_ or
-      FinalHands[4].final_score_.one_pair_) {
+  if (final_hand_[0].final_score_.two_pair_ or final_hand_[1].final_score_.two_pair_ or
+      final_hand_[2].final_score_.two_pair_ or final_hand_[3].final_score_.two_pair_ or
+      final_hand_[4].final_score_.two_pair_) {
+
+  }
+
+  if (final_hand_[0].final_score_.one_pair_ or final_hand_[1].final_score_.one_pair_ or
+      final_hand_[2].final_score_.one_pair_ or final_hand_[3].final_score_.one_pair_ or
+      final_hand_[4].final_score_.one_pair_) {
 
   }
 
@@ -311,7 +311,7 @@ Player* Table::CheckForWinner() {
   return ret;
 }
 
-ServerPackage * Table::Package(PlayerPtr p, bool hb, bool wn, bool sp) {
-  return new ServerPackage(hb, wn, sp, p->who(),"", p->call(),CommonCards);
+ServerPackage* Table::make_package(PlayerPtr p, bool hb, bool wn, bool sp) {
+  return new ServerPackage(hb, wn, sp, p->who(),"", p->call(),common_cards_);
 }
 

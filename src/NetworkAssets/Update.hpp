@@ -14,74 +14,74 @@
 class Update
 {
 public:
-  static constexpr int HeaderLength  = 4;
-  static constexpr int MaxBodyLength = 512;
+  static constexpr int HEADER_LENGTH   = 4;
+  static constexpr int MAX_BODY_LENGTH = 512;
 
   Update()
-      : BodyLength(0)
+      : body_length_(0)
   {
   }
 
-  const char* Header() const
+  const char* header() const
   {
-    return Data;
+    return data_;
   }
 
-  char* Header()
+  char* header()
   {
-    return Data;
+    return data_;
   }
 
-  std::size_t Length() const
+  std::size_t length() const
   {
-    return HeaderLength + BodyLength;
+    return HEADER_LENGTH + body_length_;
   }
 
-  const char* Body() const
+  const char* body() const
   {
-    return Data + HeaderLength;
+    return data_ + HEADER_LENGTH;
   }
 
-  char* Body()
+  char* body()
   {
-    return Data + HeaderLength;
+    return data_ + HEADER_LENGTH;
   }
 
-  std::size_t RetBodyLength() const
+  std::size_t get_body_length() const
   {
-    return BodyLength;
+    return body_length_;
   }
 
-  void MkBodyLength(std::size_t NewLength)
+  void allocate_body(std::size_t bl)
   {
-    BodyLength = NewLength;
-    if (BodyLength > MaxBodyLength)
-      BodyLength = MaxBodyLength;
+    body_length_ = bl;
+    if (body_length_ > MAX_BODY_LENGTH)
+      body_length_ = MAX_BODY_LENGTH;
   }
 
-  bool DecodeHeader()
+  bool decode_header()
   {
-    char Header[HeaderLength + 1] = "";
-    std::strncat(Header, Data, HeaderLength);
-    BodyLength = std::atoi(Header);
-    if (BodyLength > MaxBodyLength)
+    char _header[HEADER_LENGTH + 1] = "";
+    std::strncat(_header, data_, HEADER_LENGTH);
+    body_length_ = std::atoi(_header);
+    if (body_length_ > MAX_BODY_LENGTH)
     {
-      BodyLength = 0;
+      body_length_ = 0;
       return false;
     }
     return true;
   }
 
-  void EncodeHeader()
+  void encode_header()
   {
-    char Header[HeaderLength + 1] = "";
-    std::sprintf(Header, "%4lu", BodyLength);
-    std::memcpy(Data, Header, HeaderLength);
+    char _header[HEADER_LENGTH + 1] = "";
+    std::sprintf(_header, "%4lu", body_length_);
+    std::memcpy(data_, _header, HEADER_LENGTH);
   }
 
 private:
-  char Data[HeaderLength + MaxBodyLength];
-  std::size_t BodyLength;
+  std::size_t body_length_;
+  char        data_[HEADER_LENGTH + MAX_BODY_LENGTH];
 };
 
 

@@ -3,6 +3,7 @@
 
 #include "Deck/Deck.hpp"
 #include "Deck/FaceValues.hpp"
+#include "include/faker-cxx/esport.h"
 #include "NetworkAssets/NetworkController.hpp"
 #include "NetworkAssets/Package.hpp"
 
@@ -14,6 +15,7 @@ void start_client()
 
 int main()
 {
+    string test_name = faker::esport::player().data();
     Deck T_Deck;
     Hand T_Hand;
     Cards T_Common;
@@ -27,7 +29,7 @@ int main()
     {
         std::cout << "-->" << Rank[k.rank] << SuitChar[k.suit] << std::endl;
     }
-    Player Player1("Player1");
+    Player Player1(test_name);
     Player1.new_hand(T_Deck.deal(2));
     T_Hand = Player1.call();
     std::cout << "Player1 Name -->" << Player1.who() << std::endl <<
@@ -60,9 +62,9 @@ int main()
     // Client.detach();
 
     Table T_Table(Context, Endpoint);
-    T_Table.Step();
-    T_Table.Step();
-    T_Table.Step();
-    T_Table.Step();
-    std::cout << "\nPackaged: \n" << *T_Table.Package(0, false, false, false) << '\n';
+    T_Table.step();
+    T_Table.step();
+    T_Table.step();
+    T_Table.step();
+    std::cout << "\nPackaged: \n" << *T_Table.make_package(0, false, false, false) << '\n';
 }

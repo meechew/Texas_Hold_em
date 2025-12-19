@@ -53,9 +53,10 @@ include_directories(${Boost_INCLUDE_DIR}
         external/faker-cxx)
 target_link_libraries(
         Tester
-        faker-ccov-all
+        faker-cxx
         Boost::thread
-        Boost::chrono)
+        Boost::chrono
+        Boost::atomic)
 
 add_executable(
         TexasClient
