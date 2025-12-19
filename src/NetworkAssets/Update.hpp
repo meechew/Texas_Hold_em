@@ -54,7 +54,7 @@ public:
 
   void allocate_body(std::size_t bl)
   {
-    body_length_ = bl;
+    body_length_ = bl +1;
     if (body_length_ > MAX_BODY_LENGTH)
       body_length_ = MAX_BODY_LENGTH;
   }

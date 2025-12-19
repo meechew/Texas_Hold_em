@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
       StringBuff.clear();
       StringBuff << lfPack;
 
-      msg.allocate_body(std::strlen(StringBuff.str().c_str())+1);
+      msg.allocate_body(std::strlen(StringBuff.str().c_str()));
       std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
       msg.encode_header();
       std::cerr << "<-SENDING LF-> "; 
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
       //StringBuff << sPack;
       boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
       
-      msg.allocate_body(std::strlen(StringBuff.str().c_str())+1);
+      msg.allocate_body(std::strlen(StringBuff.str().c_str()));
       std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
       msg.encode_header();
       //std::cerr << "<-SENDING STEP-> ";

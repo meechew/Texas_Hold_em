@@ -6,7 +6,7 @@ set(BUILD_FAKER_TESTS OFF)
 add_subdirectory(external/faker-cxx)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_THREAD_VERSION=4")
-find_package(Boost CONFIG REQUIRED atomic chrono thread)
+find_package(Boost CONFIG REQUIRED atomic chrono thread unit_test_framework)
 
 add_executable(
         Texas_Hold_em
@@ -54,9 +54,7 @@ include_directories(${Boost_INCLUDE_DIR}
 target_link_libraries(
         Tester
         faker-cxx
-        Boost::thread
-        Boost::chrono
-        Boost::atomic)
+        ${Boost_LIBRARIES})
 
 add_executable(
         TexasClient
