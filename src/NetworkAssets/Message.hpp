@@ -11,13 +11,13 @@
 #include <cstdlib>
 #include <cstring>
 
-class Update
+class Message
 {
 public:
   static constexpr int HEADER_LENGTH   = 4;
   static constexpr int MAX_BODY_LENGTH = 512;
 
-  Update()
+  Message()
       : body_length_(0)
   {
   }
@@ -28,6 +28,11 @@ public:
   }
 
   char* header()
+  {
+    return data_;
+  }
+
+  char* data()
   {
     return data_;
   }

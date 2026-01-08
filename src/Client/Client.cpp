@@ -10,12 +10,13 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include "Update.hpp"
-#include "Package.hpp"
+#include "../NetworkAssets/Message.hpp"
+#include "../NetworkAssets/Package.hpp"
 
 using boost::asio::ip::tcp;
+using namespace boost::uuids;
 
-typedef std::deque<Update> chat_message_queue;
+typedef std::deque<Message> chat_message_queue;
 
 class chat_client
 {
@@ -28,7 +29,7 @@ public:
     do_connect(endpoints);
   }
 
-  void write(const Update& msg)
+  void write(const Message& msg)
   {
     boost::asio::post(io_context_,
                       [this, msg]()
@@ -63,7 +64,7 @@ private:
   void do_read_header()
   {
     boost::asio::async_read(socket_,
-                            boost::asio::buffer(read_msg_.header(), Update::HEADER_LENGTH),
+                            boost::asio::buffer(read_msg_.header(), Message::HEADER_LENGTH),
                             [this](boost::system::error_code ec, std::size_t /*length*/)
                             {
                               if (!ec && read_msg_.decode_header())
@@ -105,6 +106,7 @@ private:
                              {
                                if (!ec)
                                {
+                                 std::cerr << write_msgs_.front().body() << std::endl << "message sent";
                                  write_msgs_.pop_front();
                                  if (!write_msgs_.empty())
                                  {
@@ -121,31 +123,25 @@ private:
 private:
   boost::asio::io_context& io_context_;
   tcp::socket socket_;
-  Update read_msg_;
+  Message read_msg_;
   chat_message_queue write_msgs_;
 };
 
-int main(int argc, char* argv[])
+inline void run_client(const char* name, const char* host, const char* port)
 {
-  try
-  {
-    if (argc != 4)
-    {
-      std::cerr << "Usage: TexasClient <player-name> <host> <port>\n";
-      return 1;
-    }
+    uuid _uuid = random_generator()();
 
     boost::asio::io_context io_context;
 
     tcp::resolver resolver(io_context);
-    auto endpoints = resolver.resolve(argv[2], argv[3]);
+    auto endpoints = resolver.resolve(host, port);
     chat_client c(io_context, endpoints);
 
     std::thread t([&io_context](){ io_context.run(); });
 
-    ClientPackage lfPack(1, false, false, argv[1]);
-    ClientPackage sPack(0, true, false, argv[1]);
-    Update msg;
+    ClientPackage lfPack(1, false, false, name, _uuid);
+    ClientPackage sPack(0, true, false, name, _uuid);
+    Message msg;
     std::stringstream StringBuff;
     while (lfPack.heart_beat_ < 10) {
       StringBuff.str("");
@@ -155,7 +151,7 @@ int main(int argc, char* argv[])
       msg.allocate_body(std::strlen(StringBuff.str().c_str()));
       std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
       msg.encode_header();
-      std::cerr << "<-SENDING LF-> "; 
+      std::cerr << "sending heartbeat: " << lfPack.heart_beat_ << std::endl;
       c.write(msg);
 
       //StringBuff << sPack;
@@ -174,12 +170,5 @@ int main(int argc, char* argv[])
     exit(0);
     c.close();
     t.join();
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
-
-  return 0;
 }
 #endif //TEXAS_HOLD_EM_CLIENT_CPP

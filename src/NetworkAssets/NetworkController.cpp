@@ -1,88 +1,76 @@
 // Created by CBunt on 20 May 2020.
 //
 
-#include "TexasServer.hpp"
+#include "NetworkController.hpp"
+
+#include "../GameTable/GameTable.hpp"
+
+using namespace boost;
+using namespace boost::asio;
+using namespace boost::system;
+
+void Session::process_messages()
+{
+    while (!incoming_queue_.empty())
+    {
+        auto _message = incoming_queue_.front();
+        incoming_queue_.pop_front();
+        if (!seated_player_pointer_)
+        {
+           // table_.incoming_player(shared_from_this(), _package);
+        }
+
+        // table_.process_package(_package);
+    }
+}
 
 void Session::start()
 {
-    std::cerr << "--New Connection--\n"
-        /* << ReadUpdate.Body()*/ << std::endl;
-    boost::asio::async_read(
-        socket_,
-        boost::asio::buffer( incoming_update_.header(), Update::HEADER_LENGTH),
-        boost::bind(&Session::do_read_header, shared_from_this(), boost::asio::placeholders::error)
-    );
+    std::cerr << "--New Sever--\n" << std::endl;
+    do_read();
 }
 
-void Session::signal(const Update& Upd)
-{
-    bool WriteInProgress = !update_queue_.empty();
-    update_queue_.push_back(Upd);
-    if (!WriteInProgress)
-        boost::asio::async_write(
-            socket_,
-            boost::asio::buffer(update_queue_.front().body(), update_queue_.front().length()),
-            boost::bind(&Session::do_write, shared_from_this(), boost::asio::placeholders::error)
-        );
-}
-
-void Session::do_read_header(const boost::system::error_code& error_code)
-{
-    if (!error_code && incoming_update_.decode_header())
-    boost::asio::async_read(
-        socket_,
-        boost::asio::buffer(incoming_update_.body(), incoming_update_.get_body_length()),
-        boost::bind(&Session::do_read_body, shared_from_this(), boost::asio::placeholders::error)
-    );
-    else table_.player_leave(shared_from_this());
-}
-
-void Session::do_read_body(const boost::system::error_code& error_code)
-{
-    if (!error_code)
-    {
-        if (!joined_)
-        {
-            table_.incoming_player(shared_from_this(), incoming_update_);
-            joined_ = true;
-        }
-        table_.incoming_update(incoming_update_);
-        boost::asio::async_read(
-            socket_,
-            boost::asio::buffer(incoming_update_.header(), Update::HEADER_LENGTH),
-            boost::bind(&Session::do_read_header, shared_from_this(), boost::asio::placeholders::error)
-        );
-    }
-    else table_.player_leave(shared_from_this());
-}
-
-void Session::do_write(const boost::system::error_code& error_code)
+void Session::do_read()
 {
     auto self(shared_from_this());
-    if (!error_code) {
-        update_queue_.pop_front();
-        if (!update_queue_.empty()) {
-            boost::asio::async_write(
-            socket_,
-            boost::asio::buffer(update_queue_.front().header(),update_queue_.front().length()),
-            boost::bind(&Session::do_write, self, boost::asio::placeholders::error)
-            );
+    socket_.async_read_some(boost::asio::buffer(read_buffer_),
+        [this, self](const boost::system::error_code& ec, std::size_t s) {
+        if (!ec) {
+            auto* _message = new Message;
+            memcpy(_message->data(), read_buffer_, s);
+            _message->decode_header();
+            incoming_queue_.push_back(ClientPackage(_message->body()));
+            delete _message;
+            do_read();
         }
-    }
-    else {
-        table_.player_leave(self);
-    }
+    });
 }
 
-void NetworkController::do_accept()
+void Session::do_write(std::size_t s)
 {
-    acceptor_.async_accept(
-        [this](boost::system::error_code ErrorCode, tcp::socket Socket)
-        {
-            if (!ErrorCode)
-            {
-                std::make_shared<Session>(std::move(Socket), *table_)->start();
-            }
-            do_accept();
-        });
+    auto self(shared_from_this());
+    boost::asio::async_write(socket_,
+                             boost::asio::buffer(read_buffer_, s),
+                             [this, self](boost::system::error_code ec, std::size_t) {
+        if (!ec) {
+            do_read();
+        }
+    });
+}
+
+void NetworkController::start_accept() {
+    // Start an asynchronous accept operation
+    acceptor_.async_accept(socket_, [this](const boost::system::error_code& ec) {
+        handle_accept(ec);
+    });
+}
+
+void NetworkController::handle_accept(const boost::system::error_code& ec)
+{
+    if (!ec) {
+        std::cout << "Accepted new connection!" << std::endl;
+        session_ = boost::make_shared<Session>(std::move(socket_));
+        session_->start();
+        start_accept();
+    }
 }

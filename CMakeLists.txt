@@ -13,12 +13,11 @@ add_executable(
         src/main.cpp
         src/Deck/Deck.hpp
         src/Deck/Deck.cpp
-        src/GameAssets/RandomEngine.cpp
-        src/GameAssets/RandomEngine.hpp
+        src/GameUtilities/RandomEngine.cpp
+        src/GameUtilities/RandomEngine.hpp
         src/Deck/FaceValues.hpp
         src/NetworkAssets/Table.cpp
-        src/Deck/Game.cpp
-        src/Deck/Game.hpp
+        src/Games/Game.hpp
         src/Player/Player.cpp
         src/Player/Player.hpp
         src/NetworkAssets/NetworkController.cpp
@@ -33,21 +32,23 @@ target_link_libraries(
 
 add_executable(
         Tester
-        src/Tester.cpp
+        Tests/Tester.cpp
         src/Deck/Deck.hpp
         src/Deck/Deck.cpp
         src/Deck/FaceValues.hpp
-        src/NetworkAssets/Table.cpp
-        src/Deck/Game.cpp
-        src/Deck/Game.hpp
+        src/Games/Game.hpp
         src/Player/Player.cpp
         src/Player/Player.hpp
         src/NetworkAssets/NetworkController.cpp
         src/NetworkAssets/NetworkController.hpp
-        src/GameAssets/RandomEngine.cpp
-        src/GameAssets/RandomEngine.hpp
+        src/GameUtilities/RandomEngine.cpp
+        src/GameUtilities/RandomEngine.hpp
         src/NetworkAssets/Package.hpp
-        src/NetworkAssets/Package.cpp)
+        src/NetworkAssets/Package.cpp
+        src/GameTable/GameTable.cpp
+        src/GameTable/GameTable.hpp
+        src/Games/TexasHoldEm.cpp
+        src/Games/TexasHoldEm.hpp)
 
 include_directories(${Boost_INCLUDE_DIR}
         external/faker-cxx)
@@ -59,10 +60,11 @@ target_link_libraries(
 add_executable(
         TexasClient
         src/Deck/FaceValues.hpp
-        src/NetworkAssets/Client.cpp
-        src/NetworkAssets/Update.hpp
+        src/Client/Client.cpp
+        src/NetworkAssets/Message.hpp
         src/NetworkAssets/Package.cpp
-        src/NetworkAssets/Package.hpp)
+        src/NetworkAssets/Package.hpp
+        src/Client/StartClient.cpp)
 
 target_link_libraries(
         TexasClient
@@ -78,12 +80,12 @@ add_executable(
         src/main.cpp
         src/Deck/Deck.hpp
         src/Deck/Deck.cpp
-        src/GameAssets/RandomEngine.cpp
-        src/GameAssets/RandomEngine.hpp
+        src/GameUtilities/RandomEngine.cpp
+        src/GameUtilities/RandomEngine.hpp
         src/Deck/FaceValues.hpp
-        src/NetworkAssets/Table.cpp
-        src/Deck/Game.cpp
-        src/Deck/Game.hpp
+        src/Games/Game.hpp
+        src/Games/TexasHoldEm.hpp
+        src/Games/TexasHoldEm.cpp
         src/NetworkAssets/Package.cpp
         src/Player/Player.cpp
         src/NetworkAssets/NetworkController.cpp)

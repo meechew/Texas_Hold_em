@@ -9,7 +9,7 @@ void Player::new_hand(Cards c) {
 }
 
 void Player::add_player(string n) {
-  name_ = std::move(n);
+  name_ = boost::move(n);
 }
 
 Hand Player::call() {
@@ -17,9 +17,14 @@ Hand Player::call() {
 }
 
 void Player::fold() {
-  hand_ = std::make_pair<Card,Card>(Card(0, 0), Card(0, 0));
+  hand_ = Hand();
 }
 
 string Player::who() {
   return name_;
+}
+
+uuid Player::get_uuid() const
+{
+  return uuid_;
 }
