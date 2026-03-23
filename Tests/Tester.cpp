@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(network_functions_test)
     boost::asio::io_context _server_context;
 
     tcp::endpoint _server_endpoint(tcp::v4(), 5000);
-    auto _network_controller = NetworkController::create(_server_context, _server_endpoint);
+    auto _network_controller = ServerController::create(_server_context);
 
     boost::thread _context_thread([&_server_context]() { _server_context.run(); });
     boost::thread _client_thread(start_client, "TestPlayer", "127.0.0.1", "5000");
@@ -92,71 +92,4 @@ BOOST_AUTO_TEST_CASE(network_functions_test)
         sleep(1);
         _network_controller->session()->process_messages();
     };
-
-    // // boost::asio::io_context _client_context;
-    // // tcp::resolver _resolver(_client_context);
-    // // auto _client_endpoint = _resolver.resolve("127.0.0.1", "5000");
-    // //
-    // // chat_client _client(_client_context, _client_endpoint);
-    // // _client.write(_message);
-    // boost::this_thread::sleep_for(boost::chrono::milliseconds(5000));
-    // _table.step();
 }
-
-/*
-int main()
-{
-    Deck T_Deck;
-    Hand T_Hand;
-    Cards T_Common;
-    T_Hand.first = T_Deck.deal(1).front();
-    T_Hand.second = T_Deck.deal(1).front();
-
-    T_Common = T_Deck.deal(5);
-
-    std::cout << "###COMMON CARDS###" << std::endl;
-    for (auto k : T_Common)
-    {
-        std::cout << "-->" << Rank[k.rank] << SuitChar[k.suit] << std::endl;
-    }
-    Player Player1(test_name);
-    Player1.new_hand(T_Deck.deal(2));
-    T_Hand = Player1.call();
-    std::cout << "Player1 Name -->" << Player1.who() << std::endl <<
-        "Player1 Hand -->" << Rank[T_Hand.first.rank] <<
-        SuitChar[T_Hand.first.suit] << ',' << Rank[T_Hand.second.rank] <<
-        SuitChar[T_Hand.second.suit] << std::endl;
-
-    Player1.fold();
-    T_Hand = Player1.call();
-    std::cout << "Player1 Fold -->" << Rank[T_Hand.first.rank] << SuitChar[T_Hand.first.suit] <<
-        ',' << Rank[T_Hand.second.rank] << SuitChar[T_Hand.second.suit];
-
-    Player1.new_hand(T_Deck.deal(2));
-    ServerPackage Pack(false, false, false, std::move(Player1.who()), "Winner!!", Player1.call(), T_Common);
-
-    Pack.heart_beat_ = false;
-    Pack.winner_notice_ = false;
-    Pack.name_ = std::move(Player1.who());
-    Pack.winner_ = "Winner!!";
-    Pack.hand_ = Player1.call();
-    for (int k = 0; k < 5; ++k)
-    {
-        Pack.table_[k] = T_Common[k];
-    }
-
-    std::cout << "\nPackaged: \n" << Pack << std::endl;
-
-    boost::asio::io_context Context;
-    tcp::endpoint Endpoint(tcp::v4(), 5000);
-    boost::thread Client(start_client);
-    // Client.detach();
-
-    Table T_Table(Context, Endpoint);
-    T_Table.step();
-    T_Table.step();
-    T_Table.step();
-    T_Table.step();
-    std::cout << "\nPackaged: \n" << *T_Table.make_package(0, false, false, false) << '\n';
-}
-*/

@@ -1,76 +1,73 @@
-// Created by CBunt on 20 May 2020.
+// Created by meechew on 1/19/26.
 //
 
 #include "NetworkController.hpp"
 
-#include "../GameTable/GameTable.hpp"
-
-using namespace boost;
-using namespace boost::asio;
-using namespace boost::system;
-
-void Session::process_messages()
+void NetworkController::read_message()
 {
-    while (!incoming_queue_.empty())
-    {
-        auto _message = incoming_queue_.front();
-        incoming_queue_.pop_front();
-        if (!seated_player_pointer_)
-        {
-           // table_.incoming_player(shared_from_this(), _package);
-        }
+    auto self(shared_from_this());
+    boost::asio::async_read(socket_,
+                            boost::asio::buffer(current_msg_.header(), Message::HEADER_LENGTH),
+                            [this, self](const boost::system::error_code& ec, std::size_t) {
+                                handle_read_header(ec);
+                            });
+}
 
-        // table_.process_package(_package);
+void NetworkController::write_message(const Message& msg)
+{
+    auto self(shared_from_this());
+    message_queue_.push_back(msg);
+
+    boost::asio::async_write(socket_,
+                             boost::asio::buffer(message_queue_.front().data(), message_queue_.front().length()),
+                             [this, self](const boost::system::error_code& ec, std::size_t) {
+                                 handle_write(ec);
+                                 message_queue_.pop_front();
+                             });
+}
+
+void NetworkController::handle_read_header(const boost::system::error_code& ec)
+{
+    if (!ec && current_msg_.decode_header())
+    {
+        boost::asio::async_read(socket_,
+                                boost::asio::buffer(current_msg_.body(), current_msg_.get_body_length()),
+                                [this](const boost::system::error_code& ec, std::size_t) {
+                                    handle_read_body(ec);
+                                });
+    }
+    else
+    {
+        // Handle error
     }
 }
 
-void Session::start()
+void NetworkController::handle_read_body(const boost::system::error_code& ec)
 {
-    std::cerr << "--New Sever--\n" << std::endl;
-    do_read();
+    if (!ec)
+    {
+        // Assume UUID is correctly placed in the message
+        // Process message using UUID to find session
+
+        read_message(); // To read next message
+    }
+    else
+    {
+        // Handle error
+    }
 }
 
-void Session::do_read()
+void NetworkController::handle_write(const boost::system::error_code& ec)
 {
-    auto self(shared_from_this());
-    socket_.async_read_some(boost::asio::buffer(read_buffer_),
-        [this, self](const boost::system::error_code& ec, std::size_t s) {
-        if (!ec) {
-            auto* _message = new Message;
-            memcpy(_message->data(), read_buffer_, s);
-            _message->decode_header();
-            incoming_queue_.push_back(ClientPackage(_message->body()));
-            delete _message;
-            do_read();
+    if (!ec)
+    {
+        if (!message_queue_.empty())
+        {
+            write_message(message_queue_.front());
         }
-    });
-}
-
-void Session::do_write(std::size_t s)
-{
-    auto self(shared_from_this());
-    boost::asio::async_write(socket_,
-                             boost::asio::buffer(read_buffer_, s),
-                             [this, self](boost::system::error_code ec, std::size_t) {
-        if (!ec) {
-            do_read();
-        }
-    });
-}
-
-void NetworkController::start_accept() {
-    // Start an asynchronous accept operation
-    acceptor_.async_accept(socket_, [this](const boost::system::error_code& ec) {
-        handle_accept(ec);
-    });
-}
-
-void NetworkController::handle_accept(const boost::system::error_code& ec)
-{
-    if (!ec) {
-        std::cout << "Accepted new connection!" << std::endl;
-        session_ = boost::make_shared<Session>(std::move(socket_));
-        session_->start();
-        start_accept();
+    }
+    else
+    {
+        // Handle error
     }
 }

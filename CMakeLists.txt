@@ -20,7 +20,6 @@ add_executable(
         src/Games/Game.hpp
         src/Player/Player.cpp
         src/Player/Player.hpp
-        src/NetworkAssets/NetworkController.cpp
         src/NetworkAssets/NetworkController.hpp
         src/NetworkAssets/Package.hpp
         src/NetworkAssets/Package.cpp)
@@ -39,7 +38,6 @@ add_executable(
         src/Games/Game.hpp
         src/Player/Player.cpp
         src/Player/Player.hpp
-        src/NetworkAssets/NetworkController.cpp
         src/NetworkAssets/NetworkController.hpp
         src/GameUtilities/RandomEngine.cpp
         src/GameUtilities/RandomEngine.hpp
@@ -48,7 +46,10 @@ add_executable(
         src/GameTable/GameTable.cpp
         src/GameTable/GameTable.hpp
         src/Games/TexasHoldEm.cpp
-        src/Games/TexasHoldEm.hpp)
+        src/Games/TexasHoldEm.hpp
+        src/NetworkAssets/ClientController.cpp
+        src/NetworkAssets/ServerController.cpp
+        src/NetworkAssets/NetworkController.cpp)
 
 include_directories(${Boost_INCLUDE_DIR}
         external/faker-cxx)
@@ -64,7 +65,9 @@ add_executable(
         src/NetworkAssets/Message.hpp
         src/NetworkAssets/Package.cpp
         src/NetworkAssets/Package.hpp
-        src/Client/StartClient.cpp)
+        src/Client/StartClient.cpp
+        src/NetworkAssets/ClientController.cpp
+        src/NetworkAssets/NetworkController.cpp)
 
 target_link_libraries(
         TexasClient
@@ -88,7 +91,9 @@ add_executable(
         src/Games/TexasHoldEm.cpp
         src/NetworkAssets/Package.cpp
         src/Player/Player.cpp
-        src/NetworkAssets/NetworkController.cpp)
+        src/NetworkAssets/ServerController.cpp
+        src/NetworkAssets/NetworkController.cpp
+)
 
 target_link_libraries(
         TexasServer
