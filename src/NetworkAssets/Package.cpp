@@ -4,6 +4,8 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include "Package.hpp"
 
+#include <iostream>
+
 ServerPackage::ServerPackage(char*)
 {
 }

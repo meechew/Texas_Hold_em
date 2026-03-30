@@ -48,7 +48,7 @@ public:
 
     uint8_t* uuid()
     {
-        return reinterpret_cast<uint8_t*>(uuid_);
+        return reinterpret_cast<uint8_t*>(data_ + 4);
     }
 
     char* data()

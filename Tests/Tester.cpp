@@ -90,6 +90,6 @@ BOOST_AUTO_TEST_CASE(network_functions_test)
     while (!_server_context.stopped())
     {
         sleep(1);
-        _network_controller->session()->process_messages();
+        _network_controller->read_message();
     };
 }

@@ -12,6 +12,8 @@
 #include "../NetworkAssets/NetworkController.hpp"
 
 typedef boost::array<Player, 5> Players;
+typedef boost::shared_ptr<Player> PlayerPtr;
+typedef boost::shared_ptr<Session> SeatPtr;
 
 class GameTable
 {
@@ -33,8 +35,8 @@ public:
 private:
     int stage_ = 0;
     Game* game_table_ = nullptr;
-    PlayerFinals final_hand_;
-    SocketSeatLink seated_players_;
+    // PlayerFinals final_hand_;
+    Players seated_players_;
     boost::shared_ptr<boost::thread> server_thread_;
 
     SeatPtr find_socket(Player p)
