@@ -27,11 +27,15 @@ class TexasHoldEm final : public Game
         }
     } hand_;
 
+public:
+    using Game::deal;
+    Cards flop()  override;
+    Card  river() override;
+    Card  turn()  override;
+
+private:
     void  next_step() override;
     void  deal();
-    Cards flop();
-    Card  river();
-    Card  turn();
     void  end_game() override;
 };
 

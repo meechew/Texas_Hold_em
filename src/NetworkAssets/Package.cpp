@@ -2,6 +2,8 @@
 //
 
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/string_generator.hpp>
 #include "Package.hpp"
 
 #include <iostream>
@@ -174,14 +176,14 @@ std::ostream& operator<<(std::ostream& out, const ClientPackage& s)
         << R"( "NextStep" : )" << s.next_step_ << ','
         << R"( "Leave" : )" << s.leave_ << ','
         << R"( "Name" : ")" << s.name_ << "\","
-        << R"( "Uuid" : ")" << s.uuid_.begin() << "\" }";
+        << R"( "Uuid" : ")" << boost::uuids::to_string(s.uuid_) << "\" }";
 
     return out;
 }
 
 std::istream& operator>>(std::istream& in, ClientPackage& s)
 {
-    char* c = new char;
+    char c[128] = {};
     try
     {
         in.ignore(100, '{');
@@ -219,13 +221,12 @@ std::istream& operator>>(std::istream& in, ClientPackage& s)
         if (strcmp("Uuid", c)) { throw std::domain_error("Not valid package format"); }
         in.ignore(100, ':');
         in.ignore(100, '"');
-        in.get(c, 17);
-        memcpy(s.uuid_.data, c, 16);
+        in.get(c, 37);  // UUID string is 36 chars: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        s.uuid_ = boost::uuids::string_generator{}(std::string(c));
     }
     catch (std::domain_error& e)
     {
         std::cerr << e.what() << " package dropped\n";
     }
-    delete c;
     return in;
 }

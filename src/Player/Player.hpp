@@ -26,9 +26,9 @@ public:
     void new_hand(Cards c);
     void add_player(string n);
     void fold();
-    string who();
+    string who() const;
     uuid get_uuid() const;
-    Hand call();
+    Hand call() const;
 };
 
 

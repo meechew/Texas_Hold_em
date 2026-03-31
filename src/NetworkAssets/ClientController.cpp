@@ -5,31 +5,29 @@
 
 void ClientController::start()
 {
-    tcp::resolver resolver(socket_.get_executor());
-    auto _endpoints = resolver.resolve(host, port);
-    connect_to_server(_endpoints);
+    tcp::resolver resolver(io_context_);
+    auto endpoints = resolver.resolve(host_, port_);
+    connect_to_server(endpoints);
 }
 
-void ClientController::connect_to_server(const tcp::resolver::results_type& e)
+void ClientController::connect_to_server(const tcp::resolver::results_type& endpoints)
 {
     auto self(shared_from_this());
-    boost::asio::async_connect(socket_, e,
+    boost::asio::async_connect(socket_, endpoints,
         [this, self](const boost::system::error_code& ec, const tcp::endpoint&) {
-            if (!ec) {
-                // Successfully connected to server
+            if (!ec)
+            {
                 read_message();
-            } else {
-                // Handle error
             }
         });
 }
 
-void ClientController::set_host(const std::string h)
+void ClientController::set_host(std::string h)
 {
-    host = h;
+    host_ = std::move(h);
 }
 
-void ClientController::set_port(const std::string p)
+void ClientController::set_port(std::string p)
 {
-    port = p;
+    port_ = std::move(p);
 }

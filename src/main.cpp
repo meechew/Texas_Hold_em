@@ -1,20 +1,31 @@
 #include <iostream>
-#include "NetworkAssets/TexasServer.hpp"
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+#include "GameTable/GameTable.hpp"
+#include "NetworkAssets/NetworkController.hpp"
 
-int main() {
-  try
-  {
-    boost::asio::io_context Context;
-    tcp::endpoint Endpoint(tcp::v4(), 5000);
+int main()
+{
+    try
+    {
+        boost::asio::io_context context;
 
-    Table ServerGame(Context, Endpoint);
+        GameTable table;
 
+        auto server = ServerController::create(context, &table, 5000);
+        server->start();
 
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
+        boost::thread heartbeat([&table]() { table.start_heart_beat(); });
 
-  return 0;
+        std::cout << "Server listening on port 5000\n";
+        context.run();
+
+        heartbeat.join();
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+
+    return 0;
 }

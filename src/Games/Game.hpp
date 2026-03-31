@@ -34,11 +34,14 @@ protected:
     struct hand_;
     Deck dealer_;
     int  step_counter = 0;
-    virtual void end_game() =0;
+    virtual void end_game() = 0;
 public:
     Cards deal(const int cnt) { return dealer_.deal(cnt); }
     virtual ~Game() = default;
     virtual void next_step() = 0;
+    virtual Cards flop() { return {}; }
+    virtual Card  turn()  { return {}; }
+    virtual Card  river() { return {}; }
 };
 
 

@@ -10,6 +10,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 using namespace boost::uuids;
 

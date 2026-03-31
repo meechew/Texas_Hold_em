@@ -3,64 +3,82 @@
 
 #ifndef TEXAS_HOLD_EM_GAMETABLE_HPP
 #define TEXAS_HOLD_EM_GAMETABLE_HPP
+
+#include <deque>
 #include <boost/array.hpp>
+#include <boost/bimap.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
+#include <boost/chrono.hpp>
 #include "../Games/Game.hpp"
+#include "../Games/TexasHoldEm.hpp"
 #include "../Player/Player.hpp"
 #include "../NetworkAssets/Message.hpp"
 #include "../NetworkAssets/Package.hpp"
 #include "../NetworkAssets/NetworkController.hpp"
 
-typedef boost::array<Player, 5> Players;
+using namespace boost::uuids;
+
+// SeatPtr is a network session handle — used to send messages back to a client
+typedef NetworkController::ptr SeatPtr;
 typedef boost::shared_ptr<Player> PlayerPtr;
-typedef boost::shared_ptr<Session> SeatPtr;
+
+// Bimap: uuid (left) <-> session pointer (right)
+typedef boost::bimap<uuid, SeatPtr> SeatMap;
+typedef SeatMap::value_type SeatPair;
+
+struct Finals
+{
+    PlayerPtr player_;
+    Cards final_hand_;
+    ScoreBoard final_score_;
+};
 
 class GameTable
 {
 public:
-    Deck game_deck_;
     Cards common_cards_;
 
-    void add_thread(boost::shared_ptr<boost::thread> t)
-    {
-        server_thread_ = std::move(t);
-    }
+    // Called by ServerController when a message arrives on a session
+    void incoming_update(const Message& msg, SeatPtr session);
 
-    void incoming_player(SeatPtr s, ClientPackage p);
+    // Called when a player's first message is received (registers them)
+    void incoming_player(SeatPtr s, const ClientPackage& p);
+
+    // Called when a session disconnects
     void player_leave(SeatPtr s);
-    void process_package(ClientPackage p);
+
+    // Process a queued message — uses msg.uuid() to identify the sender
+    void process_package(const Message& msg);
+
     void game_start();
     void step();
 
+    [[noreturn]] void start_heart_beat();
+
+    // Query helpers (public for testing)
+    bool has_player(const std::string& name) const;
+    std::size_t player_count() const { return seated_players_.size(); }
+
 private:
     int stage_ = 0;
-    Game* game_table_ = nullptr;
-    // PlayerFinals final_hand_;
-    Players seated_players_;
-    boost::shared_ptr<boost::thread> server_thread_;
+    TexasHoldEm game_;
+    boost::array<Player, 5> host_players_;
+    SeatMap seated_players_;
+    boost::array<Finals, 5> final_hand_;
+    std::deque<Message> incoming_queue_;
 
-    SeatPtr find_socket(Player p)
-    {
-            for (auto ssp: seated_players_)
-            {
-                if (ssp.get_right()->get_uuid() == p.get_uuid())
-                    return ssp.get_left();
-            }
-        return nullptr;
-    }
-    void add_play(SeatPtr s, PlayerPtr p)
-    {
-        seated_players_.insert(SocketSeatPair(s, p));
-    }
+    int find_open_seat() const;
+    Player* find_player_by_uuid(const uuid& u);
+    void signal(const uuid& u, const Message& msg);
 
-    static ScoreBoard tabulate(const Cards&);
+    static ScoreBoard tabulate(const Cards& hand);
     void deal();
-    Cards flop();
-    Card turn();
-    Card river();
+    void flop();
+    void turn_card();
+    void river_card();
     Player* check_for_winner();
-    ServerPackage* make_package(PlayerPtr p, bool hb, bool wn, bool sp) const;
+    ServerPackage make_package(const Player& p, bool hb, bool wn, bool sp) const;
 };
-
 
 #endif //TEXAS_HOLD_EM_GAMETABLE_HPP

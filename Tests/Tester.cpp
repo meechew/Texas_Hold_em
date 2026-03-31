@@ -6,12 +6,11 @@
 #include <boost/asio.hpp>
 #include "include/faker-cxx/esport.h"
 #include "faker-cxx/number.h"
-// #include "Deck/Deck.hpp"
-// #include "Deck/FaceValues.hpp"
 #include <boost/interprocess/streams/bufferstream.hpp>
 
 #include "../src/NetworkAssets/NetworkController.hpp"
 #include "../src/NetworkAssets/Package.hpp"
+#include "../src/GameTable/GameTable.hpp"
 #include "../src/Client/Client.cpp"
 
 void start_client(const char* name, const char* host, const char* port)
@@ -38,6 +37,7 @@ BOOST_AUTO_TEST_CASE(package_encode_decode_test)
     size_t _body_length = std::strlen(_source_buffer.str().c_str());
     _message.allocate_body(_body_length);
     std::memcpy(_message.body(), _source_buffer.str().c_str(), _message.get_body_length());
+    std::memcpy(_message.uuid(), _uuid.data, 16);
     _message.encode_header();
     _message.decode_header();
     BOOST_TEST(_message.get_body_length() == _body_length + 1);
@@ -45,7 +45,6 @@ BOOST_AUTO_TEST_CASE(package_encode_decode_test)
     boost::interprocess::bufferstream _destination_buffer(_message.body(), _message.get_body_length());
     ClientPackage _destination_package;
     _destination_buffer >> _destination_package;
-
 
     BOOST_TEST_MESSAGE("   ---Compare Received Package---");
     BOOST_TEST(_test_name == _destination_package.name_);
@@ -58,13 +57,11 @@ BOOST_AUTO_TEST_CASE(package_encode_decode_test)
     BOOST_TEST(_player.who() == _test_name);
     BOOST_TEST(_player.get_uuid() == _uuid);
 
-    // ToDo: Test server packages.
     ServerPackage _server_package;
 }
 
 BOOST_AUTO_TEST_CASE(deck_functions_test)
 {
-    // ToDo: Think about future tests
     BOOST_TEST_MESSAGE("Build deck functions");
     Deck _deck;
     Hand _hand;
@@ -73,23 +70,24 @@ BOOST_AUTO_TEST_CASE(deck_functions_test)
     _hand = _deck.deal_hand();
 }
 
-
-BOOST_AUTO_TEST_CASE(network_functions_test)
+BOOST_AUTO_TEST_CASE(game_table_test)
 {
-    BOOST_TEST_MESSAGE("   ---Network Functions---");
+    BOOST_TEST_MESSAGE("   ---GameTable: connect and register player---");
 
     boost::asio::io_context _server_context;
 
-    tcp::endpoint _server_endpoint(tcp::v4(), 5000);
-    auto _network_controller = ServerController::create(_server_context);
+    GameTable _game_table;
+    auto _server = ServerController::create(_server_context, &_game_table, 5000);
+    _server->start();
 
     boost::thread _context_thread([&_server_context]() { _server_context.run(); });
     boost::thread _client_thread(start_client, "TestPlayer", "127.0.0.1", "5000");
 
+    _client_thread.join();
+    _server_context.stop();
+    _context_thread.join();
 
-    while (!_server_context.stopped())
-    {
-        sleep(1);
-        _network_controller->read_message();
-    };
+    BOOST_TEST_MESSAGE("   ---Verify player registered in GameTable---");
+    BOOST_TEST(_game_table.has_player("TestPlayer"));
+    BOOST_TEST(_game_table.player_count() == 1u);
 }

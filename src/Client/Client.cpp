@@ -25,38 +25,35 @@ inline void run_client(const char* name, const char* host, const char* port)
 
     boost::asio::io_context io_context;
 
-    tcp::resolver resolver(io_context);
-    auto endpoints = resolver.resolve(host, port);
     auto _client = ClientController::create(io_context);
+    _client->set_host(host);
+    _client->set_port(port);
     _client->start();
 
+    boost::thread _io_thread([&io_context]() { io_context.run(); });
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));  // wait for connect
+
     ClientPackage lfPack(1, false, false, name, _uuid);
-    ClientPackage sPack(0, true, false, name, _uuid);
-    Message msg;
-    std::stringstream StringBuff;
-    while (lfPack.heart_beat_ < 10) {
-      StringBuff.str("");
-      StringBuff.clear();
-      StringBuff << lfPack;
+    while (lfPack.heart_beat_ < 3) {
+      std::stringstream ss;
+      ss << lfPack;
+      std::string body = ss.str();
 
-      msg.new_message(StringBuff, _uuid);
+      Message msg;
+      msg.allocate_body(body.size());
+      std::memcpy(msg.body(), body.c_str(), msg.get_body_length());
+      std::memcpy(msg.uuid(), _uuid.data, 16);
       msg.encode_header();
+
       std::cerr << "sending heartbeat: " << lfPack.heart_beat_ << std::endl;
-      _client->write_message(msg);
+      // Post to io_context thread to avoid data race on message_queue_
+      boost::asio::post(io_context, [_client, msg]() { _client->write_message(msg); });
 
-      //StringBuff << sPack;
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-      
-      msg.allocate_body(std::strlen(StringBuff.str().c_str()));
-      std::memcpy(msg.body(), StringBuff.str().c_str(), msg.get_body_length());
-      msg.encode_header();
-      //std::cerr << "<-SENDING STEP-> ";
-
-      //c.write(msg);
-      
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(5000));
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
       ++lfPack.heart_beat_;
     }
-    exit(0);
+
+    io_context.stop();
+    _io_thread.join();
 }
 #endif //TEXAS_HOLD_EM_CLIENT_CPP

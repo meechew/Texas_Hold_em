@@ -12,7 +12,7 @@ void Player::add_player(string n) {
   name_ = boost::move(n);
 }
 
-Hand Player::call() {
+Hand Player::call() const {
   return hand_;
 }
 
@@ -20,7 +20,7 @@ void Player::fold() {
   hand_ = Hand();
 }
 
-string Player::who() {
+string Player::who() const {
   return name_;
 }
 

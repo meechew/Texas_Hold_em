@@ -14,7 +14,6 @@
 #include <boost/bind/bind.hpp>
 #include <boost/array.hpp>
 #include <boost/thread.hpp>
-#include <boost/bimap.hpp>
 #include "Package.hpp"
 #include "Message.hpp"
 #include "../Player/Player.hpp"
@@ -23,31 +22,33 @@
 using boost::asio::ip::tcp;
 using namespace boost::uuids;
 
-class Session;
+class GameTable;
 
 class NetworkController : public boost::enable_shared_from_this<NetworkController>
 {
 public:
     typedef boost::shared_ptr<NetworkController> ptr;
-    typedef boost::bimap<uuid, boost::shared_ptr<Session>> session_map;
 
-    NetworkController(boost::asio::io_context& c) : socket_(c) {}
+    NetworkController(boost::asio::io_context& c) : io_context_(c), socket_(c) {}
 
     virtual ~NetworkController() = default;
 
     virtual void start() = 0;
     void read_message();
     void write_message(const Message& msg);
+
 protected:
+    virtual void on_message_received(const Message& msg) {}
 
     void handle_read_header(const boost::system::error_code& ec);
     void handle_read_body(const boost::system::error_code& ec);
     void handle_write(const boost::system::error_code& ec);
+    void do_write();
 
+    boost::asio::io_context& io_context_;
     tcp::socket socket_;
     Message current_msg_;
-    deque<Message> message_queue_;
-    session_map session_bimap_;
+    boost::container::deque<Message> message_queue_;
 };
 
 class ServerController : public NetworkController
@@ -55,21 +56,39 @@ class ServerController : public NetworkController
 public:
     typedef boost::shared_ptr<ServerController> ptr;
 
-    static ptr create(boost::asio::io_context& c)
+    static ptr create(boost::asio::io_context& c, GameTable* gt, int port)
     {
-        return ptr(new ServerController(c));
+        return ptr(new ServerController(c, gt, std::to_string(port), false));
     }
 
-    void set_port(std::string p);
+    // Overload without GameTable (testing)
+    static ptr create(boost::asio::io_context& c, int port)
+    {
+        return ptr(new ServerController(c, nullptr, std::to_string(port), false));
+    }
+
     void start() override;
 
+protected:
+    void on_message_received(const Message& msg) override;
+
 private:
-    std::string port;
-    ServerController(boost::asio::io_context& c) :
-        NetworkController(c),
-         acceptor_(socket_.get_executor())
-        {}
+    std::string port_;
+    bool is_session_;
     tcp::acceptor acceptor_;
+    GameTable* game_table_;
+
+    // Listener constructor
+    ServerController(boost::asio::io_context& c, GameTable* gt, std::string port, bool session)
+        : NetworkController(c), port_(std::move(port)), is_session_(session),
+          acceptor_(c), game_table_(gt) {}
+
+    // Creates a session (accepted connection, no acceptor)
+    static ptr create_session(boost::asio::io_context& c, GameTable* gt)
+    {
+        return ptr(new ServerController(c, gt, "", true));
+    }
+
     void accept_connections();
 };
 
@@ -88,9 +107,9 @@ public:
     void start() override;
 
 private:
-    std::string host;
-    std::string port;
-    void connect_to_server(const tcp::resolver::results_type& e);
+    std::string host_;
+    std::string port_;
+    void connect_to_server(const tcp::resolver::results_type& endpoints);
     ClientController(boost::asio::io_context& c) : NetworkController(c) {}
 };
 

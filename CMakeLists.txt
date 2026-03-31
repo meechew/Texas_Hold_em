@@ -16,11 +16,17 @@ add_executable(
         src/GameUtilities/RandomEngine.cpp
         src/GameUtilities/RandomEngine.hpp
         src/Deck/FaceValues.hpp
-        src/NetworkAssets/Table.cpp
         src/Games/Game.hpp
+        src/Games/TexasHoldEm.hpp
+        src/Games/TexasHoldEm.cpp
         src/Player/Player.cpp
         src/Player/Player.hpp
+        src/GameTable/GameTable.hpp
+        src/GameTable/GameTable.cpp
         src/NetworkAssets/NetworkController.hpp
+        src/NetworkAssets/NetworkController.cpp
+        src/NetworkAssets/ServerController.cpp
+        src/NetworkAssets/ClientController.cpp
         src/NetworkAssets/Package.hpp
         src/NetworkAssets/Package.cpp)
 
@@ -36,17 +42,17 @@ add_executable(
         src/Deck/Deck.cpp
         src/Deck/FaceValues.hpp
         src/Games/Game.hpp
+        src/Games/TexasHoldEm.hpp
+        src/Games/TexasHoldEm.cpp
         src/Player/Player.cpp
         src/Player/Player.hpp
+        src/GameTable/GameTable.hpp
+        src/GameTable/GameTable.cpp
         src/NetworkAssets/NetworkController.hpp
         src/GameUtilities/RandomEngine.cpp
         src/GameUtilities/RandomEngine.hpp
         src/NetworkAssets/Package.hpp
         src/NetworkAssets/Package.cpp
-        src/GameTable/GameTable.cpp
-        src/GameTable/GameTable.hpp
-        src/Games/TexasHoldEm.cpp
-        src/Games/TexasHoldEm.hpp
         src/NetworkAssets/ClientController.cpp
         src/NetworkAssets/ServerController.cpp
         src/NetworkAssets/NetworkController.cpp)
@@ -65,6 +71,12 @@ add_executable(
         src/NetworkAssets/Message.hpp
         src/NetworkAssets/Package.cpp
         src/NetworkAssets/Package.hpp
+        src/Player/Player.cpp
+        src/Player/Player.hpp
+        src/Deck/Deck.hpp
+        src/Deck/Deck.cpp
+        src/GameUtilities/RandomEngine.cpp
+        src/GameUtilities/RandomEngine.hpp
         src/Client/StartClient.cpp
         src/NetworkAssets/ClientController.cpp
         src/NetworkAssets/NetworkController.cpp)
@@ -79,7 +91,6 @@ target_link_libraries(
 
 add_executable(
         TexasServer
-        src/NetworkAssets/TexasServer.hpp
         src/main.cpp
         src/Deck/Deck.hpp
         src/Deck/Deck.cpp
@@ -89,11 +100,16 @@ add_executable(
         src/Games/Game.hpp
         src/Games/TexasHoldEm.hpp
         src/Games/TexasHoldEm.cpp
-        src/NetworkAssets/Package.cpp
         src/Player/Player.cpp
-        src/NetworkAssets/ServerController.cpp
+        src/Player/Player.hpp
+        src/GameTable/GameTable.hpp
+        src/GameTable/GameTable.cpp
+        src/NetworkAssets/Package.hpp
+        src/NetworkAssets/Package.cpp
+        src/NetworkAssets/NetworkController.hpp
         src/NetworkAssets/NetworkController.cpp
-)
+        src/NetworkAssets/ServerController.cpp
+        src/NetworkAssets/ClientController.cpp)
 
 target_link_libraries(
         TexasServer
